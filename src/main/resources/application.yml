@@ -1,0 +1,7 @@
+server:
+  port: 8888
+
+person:
+  lastname: 张三${random.uuid}
+  age: ${random.int(10)}
+  birth: 2017/12/15${lastname}
