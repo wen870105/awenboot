@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+	person memo	
+	@author Wen
+ 	@since 2020-05-25 
+ 	wcodemarker生成工具备注:
+ 	1.基础方法尽量不要去修改,如果修改注意影响范围
+ 	2.默认主键名称是ID,如果不是需要修改对应的sql
+ 	3.默认生成的sql为单表相关
+-->
+<mapper namespace="com.wen.awenboot.dal.dao.PersonDao">
+
+    <resultMap id="Person-Map" type="com.wen.awenboot.dal.dataobject.Person">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="age" column="age"/>
+        <result property="address" column="address"/>
+    </resultMap>
+
+    <!-- 智能排序与分页 -->
+    <sql id="QUERY_ORDER_LIMIT_CONDTION">
+        <if test="orderField != null and orderField != '' and orderFieldType != null and orderFieldType != ''">
+            <![CDATA[ORDER BY ${orderField} ${orderFieldType} ]]></if>
+        <if test="startIndex != null and startIndex &gt;= 0 and offset != null and offset &gt; 0">
+            <![CDATA[LIMIT #{startIndex},#{offset}]]></if>
+    </sql>
+
+    <!-- 全部条件(更多功能可以通过queryData扩展实现)  -->
+    <sql id="QUERY_WHERE_CLAUSE">
+        <where>
+            <if test="id != null and id != '' ">and id = #{id}</if>
+            <if test="name != null and name != '' ">and name = #{name}</if>
+            <if test="age != null and age != '' ">and age = #{age}</if>
+            <if test="address != null and address != '' ">and address = #{address}</if>
+        </where>
+    </sql>
+
+    <!-- 更新列字段,只要不为NULL则更新,除开主键列 -->
+    <sql id="UPDATE_COLUMN_SET">
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="age != null">age = #{age},</if>
+            <if test="address != null">address = #{address},</if>
+        </set>
+    </sql>
+
+    <!-- 插入记录 -->
+    <insert id="add" keyProperty="id" useGeneratedKeys="true">
+		insert into person
+		( id, name, age, address)
+		values
+		( #{id}, #{name}, #{age}, #{address})
+	</insert>
+
+    <!-- 删除记录,主键IN(array) -->
+    <delete id="deleteByIds" parameterType="java.lang.reflect.Array">
+        DELETE FROM person WHERE id IN
+        <foreach collection="array" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 删除,通过条件 -->
+    <update id="deleteByCondtion">
+        DELETE FROM person
+        <include refid="QUERY_WHERE_CLAUSE"/>
+    </update>
+
+    <!-- 修改记录通过主键 -->
+    <update id="updateById">
+        UPDATE person
+        <include refid="UPDATE_COLUMN_SET"/>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectById" resultMap="Person-Map">
+		select * from person where id = #{value}
+	</select>
+
+    <!-- 查询,通过条件 -->
+    <select id="selectList" resultMap="Person-Map" parameterType="Person">
+        select * from person
+        <include refid="QUERY_WHERE_CLAUSE"/>
+        <include refid="QUERY_ORDER_LIMIT_CONDTION"/>
+    </select>
+
+    <!-- 总数查询,通过条件 -->
+    <select id="selectListCount" parameterType="Person" resultType="int">
+        select count(1) from person
+        <include refid="QUERY_WHERE_CLAUSE"/>
+    </select>
+
+    <!-- 查询,通过主键IN(array) -->
+    <select id="selectByIds" parameterType="java.lang.reflect.Array" resultMap="Person-Map">
+        select * from person
+        WHERE id IN
+        <foreach collection="array" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 其它SQL语句 -->
+
+
+</mapper>

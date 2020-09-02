@@ -1,11 +1,9 @@
-package com.wen.awenboot.cfg;
+package com.wen.awenboot.config;
 
 import com.alibaba.fastjson.JSON;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 
@@ -21,7 +19,7 @@ import javax.annotation.PostConstruct;
 @ConfigurationProperties(prefix = "person")
 @Slf4j
 @Data
-public class Person {
+public class Person11 {
     private String lastName;
 
     private int age;

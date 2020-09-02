@@ -23,7 +23,7 @@
             <pattern>[%d{HH:mm:ss.SSS}] %msg %n</pattern>
         </encoder>
     </appender>
-
+    <logger level="info" name="com.wen.awenboot.controller.PersonController"/>
 
     <root level="INFO">
         <appender-ref ref="rollingFileAppender"/>
