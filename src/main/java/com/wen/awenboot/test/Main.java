@@ -13,7 +13,17 @@ import java.io.IOException;
  */
 public class Main {
 
-    private static String str = "18780589229,18723086374,15123849675,        13594624754,        18375883463,        18716883083,        15297166648";
+    private static String str = "18513951051," +
+            "18723086374," +
+            "15087030430," +
+            "13342510932," +
+            "15573217385," +
+            "13983622691," +
+            "15974216075," +
+            "18716883083," +
+            "15105148270," +
+            "13770501240," +
+            "15850586971";
 
     public static void main(String[] args) throws IOException {
         byte[] bytes = {0x01};
