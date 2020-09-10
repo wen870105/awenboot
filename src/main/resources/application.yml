@@ -6,9 +6,11 @@ logback:
   file: d:\\logs\\wen123
 zhuangku:
   # 当次数据导出目录
-  dataSourceDir: D:\\wen_test\\
-  exportDir: d:\\export\\
-  rateLimiterQps: 1
+  dataSourceDir: D:\\wen_test\\data\\
+  exportDir: D:\\wen_test\\export\\
+  rateLimiterQps: 100
 #  targetUrl: http://117.128.1.49:7011/recommendService/services/proQuery/102/004050160005/01/
   targetUrl: http://127.0.0.1:8080/test/
+  readFileLimit: 100
+  printFlag: 10
 

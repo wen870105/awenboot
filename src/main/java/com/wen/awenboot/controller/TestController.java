@@ -7,6 +7,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.concurrent.TimeUnit;
+
 @Controller
 @RequestMapping("/test")
 @Slf4j
@@ -29,6 +31,11 @@ public class TestController {
 //        obj.put("resultCode", "0001");
 //        obj.put("productInfo", null`);
 //        log.info("test demo===============" + obj.toJSONString());
+        try {
+            TimeUnit.MILLISECONDS.sleep(800);
+        } catch (InterruptedException e) {
+            log.error("", e);
+        }
         return ret;
     }
 

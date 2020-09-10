@@ -3,7 +3,6 @@ package com.wen.awenboot.biz.service;
 import com.wen.awenboot.config.ZhuangkuConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,7 +26,7 @@ public class ZhuangkuFileService {
     private String fileName;
 
     // 记录当前撞库的状态
-    private String tempFileName = "zhuangku.txt";
+    private String tempFileName = "zhuangku";
 
     private String tempFilePpsKey = "current";
 
@@ -51,20 +50,17 @@ public class ZhuangkuFileService {
         File file = new File(filePath);
         if (!file.exists()) {
             try {
-                file.getParentFile().mkdirs();
+                if(!file.getParentFile().exists()) {
+                    file.getParentFile().mkdirs();
+                }
                 file.createNewFile();
             } catch (Exception e) {
                 log.error("创建文件失败,path={}", filePath, e);
             }
-        } else {
-            try {
-                FileUtils.write(file, "", "UTF-8", false);
-                log.error("清空数据文件名称:{}", file.getPath());
-            } catch (IOException e) {
-                log.error("清空数据失败,文件名称:{}", file.getPath(), e);
-            }
         }
-        String tempFilePath = cfg.getExportDir() + tempFileName;
+        this.file = file;
+
+        String tempFilePath = cfg.getExportDir() + tempFileName + "_" + fileName + ".txt";
         File newTempFile = new File(tempFilePath);
         if (!newTempFile.exists()) {
             try {
@@ -81,17 +77,7 @@ public class ZhuangkuFileService {
         } catch (IOException e) {
             log.error("", e);
         }
-        String property = tempFilePps.getProperty(tempFilePpsKey);
-        if (StringUtils.isNotBlank(property)) {
-            // 当前操作的数据和历史操作数据目录不同,需要冲头开始撞库
-            if (!cfg.getDataSourceDir().equalsIgnoreCase(property.split("\\$")[0])) {
-                tempFilePps.clear();
-                updateProperties();
-                log.info("当前操作的数据和历史操作数据目录不同,需要冲头开始撞库,清空临时配置文件");
-            }
-        }
-        this.file = file;
-        this.tempFile = newTempFile;
+
         log.info("初始化文件服务:file={},tempFile={}", file.getPath(), tempFile.getPath());
     }
 
@@ -103,11 +89,18 @@ public class ZhuangkuFileService {
     }
 
     private void updateProperties() {
+        FileOutputStream fos = null;
         try {
-            FileOutputStream fos = new FileOutputStream(tempFile);
+             fos = new FileOutputStream(tempFile);
             tempFilePps.store(fos, "zhuang ku");
         } catch (IOException e) {
             log.error("", e);
+        }finally {
+            try {
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

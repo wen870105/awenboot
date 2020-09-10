@@ -27,6 +27,10 @@ public class ZhuangkuConfig {
 
     private String targetUrl;
 
+    private int readFileLimit;
+
+    private int printFlag;
+
     @PostConstruct
     private void init() {
         log.info("ZhuangkuConfig={}", JSON.toJSONString(this));

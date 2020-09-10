@@ -1,5 +1,6 @@
 package com.wen.awenboot.task;
 
+import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.util.concurrent.RateLimiter;
 import com.wen.awenboot.biz.service.ZhuangkuFileService;
@@ -11,16 +12,15 @@ import com.wen.awenboot.integration.zhuangku.Result;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -35,11 +35,9 @@ import java.util.concurrent.TimeUnit;
 public class Init {
 
     private static ExecutorService executor = new ThreadPoolExecutor(32, 64, 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(10240),
-            ThreadPoolThreadFactoryUtil.nameThreadFactory("okhttp-pool"));
+            ThreadPoolThreadFactoryUtil.nameThreadFactory("okhttp-pool"), new ThreadPoolExecutor.CallerRunsPolicy());
 
     private static OkHttpUtil client = OkHttpUtil.getInstance();
-
-    private int printFlag = 100;
 
     private int printCount = 0;
 
@@ -56,38 +54,19 @@ public class Init {
 
     @PostConstruct
     private void init() {
-        final ZhuangkuFileService zkfs = new ZhuangkuFileService(cfg, DateTime.now().toString("yyyyMMdd"));
         Thread thd = new Thread(() -> {
             try {
-                TimeUnit.SECONDS.sleep(5);
+                TimeUnit.SECONDS.sleep(10);
             } catch (InterruptedException e) {
                 log.error("", e);
             }
-            execute1(zkfs);
+            execute1();
         });
         thd.start();
 
-//        Thread thd2 = new Thread(() -> {
-//            try {
-//                TimeUnit.SECONDS.sleep(6);
-//            } catch (InterruptedException e) {
-//                log.error("", e);
-//            }
-//            int i = 0;
-//            while (true) {
-//                try {
-//                    TimeUnit.SECONDS.sleep(1);
-//                } catch (InterruptedException e) {
-//                    log.error("", e);
-//                }
-//                log.info("写日志开始" + i);
-//                zkfs.wirteTempFileProperties("testName", (++i));
-//            }
-//        });
-//        thd2.start();
     }
 
-    private void execute1(ZhuangkuFileService zkfs) {
+    private void execute1() {
         long start = System.currentTimeMillis();
         File file = new File(cfg.getDataSourceDir());
         if (!file.exists()) {
@@ -100,10 +79,10 @@ public class Init {
 
         File[] files = file.listFiles();
 
-
-        // TempFileProperties 表示是否当前系统正在执行的文件名称和行数,用来系统崩溃后再次运行
-        boolean export = StringUtils.isBlank(zkfs.getTempFileProperties()) ? true : false;
         for (File f : files) {
+            ZhuangkuFileService zkfs = new ZhuangkuFileService(cfg, f.getName());
+            // TempFileProperties 表示是否当前系统正在执行的文件名称和行数,用来系统崩溃后再次运行
+            boolean export = StringUtils.isBlank(zkfs.getTempFileProperties()) ? true : false;
             if (export) {
                 exportFile(f, zkfs, limiter, 0);
             } else {
@@ -117,7 +96,6 @@ public class Init {
             }
         }
         long end = System.currentTimeMillis();
-        zkfs.endExport();
         log.info("导出完毕,耗时{}ms", end - start);
 
     }
@@ -132,35 +110,55 @@ public class Init {
     private void exportFile(File file, ZhuangkuFileService zkfs, RateLimiter limiter, int start) {
         long count = ZhuangkuFileService.lineCount(file);
 
-        int limit = 100;
-//        int limit = 6;
+        int limit = cfg.getReadFileLimit();
         while (start < count) {
             log.info("开始读取文件,name={},start={},limit={}", file.getPath(), start, limit);
             List<String> strings = null;
             try {
                 strings = ReadFilePageUtil.readListPage(file.getPath(), start, limit);
-                log.info("读取文件行数,size={}", strings.size());
             } catch (Exception e) {
                 log.error("读取数据文件异常,path={}", file.getPath(), e);
             }
 
-            if (strings != null) {
+
+            if (strings != null && strings.size()>0) {
+                CountDownLatch cdl = new CountDownLatch(strings.size());
                 for (String phone : strings) {
-                    limiter.acquire();
-                    Result result = getResult(phone);
-                    wirteData(phone, result, zkfs);
+                    try {
+                        limiter.acquire();
+                        executor.execute(() -> {
+                            try {
+                                Result result = getResult(phone);
+                                wirteData(phone, result, zkfs);
+                            } catch (Throwable e) {
+                                log.error("访问接口写入日志文件异常,phone={}", phone, e);
+                            }finally {
+                                cdl.countDown();
+                            }
+                        });
+                    } catch (Throwable e) {
+                        log.error("访问接口写入日志文件异常,phone={}", phone, e);
+                    }
+                }
+                try {
+                    // 这里的目的为了少丢失数据,线程不能一直等待rpc的结果
+                    cdl.await(10,TimeUnit.SECONDS);
+                    // 记录已经完成文件的行数
+                    zkfs.wirteTempFileProperties(file.getName(), (start+strings.size()));
+                } catch (InterruptedException e) {
+                    log.error("",e);
                 }
             }
             start += limit;
-            zkfs.wirteTempFileProperties(file.getName(), start);
         }
+        zkfs.endExport();
     }
 
 
     private void wirteData(String phone, Result result, ZhuangkuFileService zkfs) {
         if ("0000".equalsIgnoreCase(result.getResultCode())) {
             StringBuilder sb = new StringBuilder(50);
-            sb.append(phone).append("=").append(result.getProductInfo().getProducts()).append("\r\n");
+            sb.append(phone).append("=").append(result.getProductInfo().getProducts()).append("=").append(DateUtil.today()).append("\r\n");
             zkfs.wirte(sb.toString());
             log.info("成功返回的结果,ret={},phone={}", JSON.toJSONString(result), phone);
         }
@@ -181,13 +179,13 @@ public class Init {
         try {
             ret = resp.body().string();
             result = JSON.parseObject(ret, Result.class);
-        } catch (IOException e) {
-            log.error("请求异常", e);
+        } catch (Exception e) {
+            log.error("请求异常,ret={}", ret, e);
         }
 
         long end = System.currentTimeMillis();
-        if (printCount % printFlag == 0) {
-            log.info("耗时{}ms,间隔{}次请求打印一次日志,ret={},phone={}", (end - start), printFlag, ret, phone);
+        if (printCount % cfg.getPrintFlag() == 0) {
+            log.info("耗时{}ms,间隔{}次请求打印一次日志,ret={},phone={}", (end - start), cfg.getPrintFlag(), ret, phone);
         }
 
         return result;
