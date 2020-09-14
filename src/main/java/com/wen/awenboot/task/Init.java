@@ -1,5 +1,6 @@
 package com.wen.awenboot.task;
 
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.util.concurrent.RateLimiter;
@@ -18,12 +19,14 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author wen
@@ -41,11 +44,16 @@ public class Init {
 
     private int printCount = 0;
 
+    private int printWriteCount = 0;
+
     @Autowired
     private RestTemplate restTemplate;
 
     @Autowired
     private ZhuangkuConfig cfg;
+
+    // 当前时间的分钟数,用来调整流控速率
+    private int currentMinute;
 
     //    @Scheduled(cron = "*/5 * * * * ?")
     private void execute() {
@@ -77,8 +85,10 @@ public class Init {
         // 流控qps
         RateLimiter limiter = RateLimiter.create(cfg.getRateLimiterQps());
 
-        File[] files = file.listFiles();
-
+        List<File> files = Arrays.stream(file.listFiles()).sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
+                .filter(p -> cfg.getIncludeDataFileList().contains(p.getName()))
+                .collect(Collectors.toList());
+        log.info("读取文件列表:{}", files.toString());
         for (File f : files) {
             ZhuangkuFileService zkfs = new ZhuangkuFileService(cfg, f.getName());
             // TempFileProperties 表示是否当前系统正在执行的文件名称和行数,用来系统崩溃后再次运行
@@ -97,7 +107,6 @@ public class Init {
         }
         long end = System.currentTimeMillis();
         log.info("导出完毕,耗时{}ms", end - start);
-
     }
 
 
@@ -112,7 +121,8 @@ public class Init {
 
         int limit = cfg.getReadFileLimit();
         while (start < count) {
-            log.info("开始读取文件,name={},start={},limit={}", file.getPath(), start, limit);
+            refreshLimitRateIfNeed(limiter);
+            log.info("开始读取文件,流控速率={},name={},start={},limit={}", limiter.getRate(), file.getPath(), start, limit);
             List<String> strings = null;
             try {
                 strings = ReadFilePageUtil.readListPage(file.getPath(), start, limit);
@@ -121,7 +131,7 @@ public class Init {
             }
 
 
-            if (strings != null && strings.size()>0) {
+            if (strings != null && strings.size() > 0) {
                 CountDownLatch cdl = new CountDownLatch(strings.size());
                 for (String phone : strings) {
                     try {
@@ -132,7 +142,7 @@ public class Init {
                                 wirteData(phone, result, zkfs);
                             } catch (Throwable e) {
                                 log.error("访问接口写入日志文件异常,phone={}", phone, e);
-                            }finally {
+                            } finally {
                                 cdl.countDown();
                             }
                         });
@@ -142,11 +152,11 @@ public class Init {
                 }
                 try {
                     // 这里的目的为了少丢失数据,线程不能一直等待rpc的结果
-                    cdl.await(10,TimeUnit.SECONDS);
+                    cdl.await(10, TimeUnit.SECONDS);
                     // 记录已经完成文件的行数
-                    zkfs.wirteTempFileProperties(file.getName(), (start+strings.size()));
+                    zkfs.wirteTempFileProperties(file.getName(), (start + strings.size()));
                 } catch (InterruptedException e) {
-                    log.error("",e);
+                    log.error("", e);
                 }
             }
             start += limit;
@@ -157,10 +167,22 @@ public class Init {
 
     private void wirteData(String phone, Result result, ZhuangkuFileService zkfs) {
         if ("0000".equalsIgnoreCase(result.getResultCode())) {
+            printWriteCount++;
             StringBuilder sb = new StringBuilder(50);
-            sb.append(phone).append("=").append(result.getProductInfo().getProducts()).append("=").append(DateUtil.today()).append("\r\n");
+            sb.append(phone).append("=").append(result.getProductInfo().getProducts()).append("\r\n");
             zkfs.wirte(sb.toString());
-            log.info("成功返回的结果,ret={},phone={}", JSON.toJSONString(result), phone);
+        }
+    }
+
+    private void refreshLimitRateIfNeed(RateLimiter limiter) {
+        DateTime date = DateUtil.date();
+        int hour = date.hour(true);
+        int minute = date.minute();
+        if (minute != currentMinute) {
+            int rate = cfg.getRateLimiterQpsByHHmm(hour, minute);
+            currentMinute = minute;
+            limiter.setRate(rate);
+            log.info("每分钟更新流控速率,minute={},流控速率rate={}", minute, rate);
         }
     }
 

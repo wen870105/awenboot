@@ -1,5 +1,6 @@
 package com.wen.awenboot.config;
 
+import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSON;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +8,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author wen
@@ -31,8 +34,39 @@ public class ZhuangkuConfig {
 
     private int printFlag;
 
+    /**
+     * 读取的数据文件列表
+     */
+    private Set<String> includeDataFileList;
+
+    private Map<Integer, Integer> rateLimiterQpsMap;
+
     @PostConstruct
     private void init() {
         log.info("ZhuangkuConfig={}", JSON.toJSONString(this));
+    }
+
+    /**
+     * qps和hours的关系
+     * 如果没有配置值就用默认0-8点qps为20
+     * 其它情况返回配置的rateLimiterQps
+     *
+     * @return
+     */
+    public int getRateLimiterQpsByHHmm(int hour, int minute) {
+        int rate = innerGetRateLimiterQpsByHHmm(hour);
+        return rate + RandomUtil.randomInt(1, 6);
+    }
+
+    private int innerGetRateLimiterQpsByHHmm(int hour) {
+        Integer ret = rateLimiterQpsMap.get(hour);
+
+        if (ret != null) {
+            return ret;
+        }
+        if (hour >= 0 && hour < 8) {
+            return 5;
+        }
+        return rateLimiterQps;
     }
 }
