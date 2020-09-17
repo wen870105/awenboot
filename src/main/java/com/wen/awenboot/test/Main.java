@@ -92,14 +92,22 @@ public class Main {
 
         String day = DateTime.now().toString("yyyyMMdd");
 
-        String file1 = "TESTPHONE_0_DAY_" + day + "_01.DATA";
+        String tagCode = "3875";
+
+        String file1 = tagCode + "_0_DAY_" + day + "_01.DATA";
         FileUtils.write(new File("D:\\" + file1), sb.toString(), "UTF-8");
 
 
         StringBuilder sb3 = new StringBuilder();
         sb3.append(file1).append(new String(bytes)).append(set1.size()).append(new String(bytes)).append(day).append("\r\n");
 
-        FileUtils.write(new File("D:\\TESTPHONE_0_DAY_" + day + ".CHK"), sb3.toString(), "UTF-8");
+        FileUtils.write(new File("D:\\" + tagCode + "_0_DAY_" + day + ".CHK"), sb3.toString(), "UTF-8");
+
+
+        StringBuilder sb4 = new StringBuilder();
+        sb4.append(tagCode).append(new String(bytes)).append("用户运营专项").append(new String(bytes)).append("枚举").append(new String(bytes)).append("用户运营专项").append("\r\n");
+
+        FileUtils.write(new File("D:\\MIGU_TAG_COLUM_INFO_" + day + ".TXT"), sb4.toString(), "UTF-8");
     }
 
 }

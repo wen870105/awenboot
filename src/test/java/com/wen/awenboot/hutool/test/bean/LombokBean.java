@@ -1,4 +1,4 @@
-package com.wen.awenboot.hutool.date;
+package com.wen.awenboot.hutool.test.bean;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

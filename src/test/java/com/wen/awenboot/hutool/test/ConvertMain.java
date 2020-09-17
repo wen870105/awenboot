@@ -1,8 +1,10 @@
-package com.wen.awenboot.hutool.date;
+package com.wen.awenboot.hutool.test;
 
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.lang.TypeReference;
 import cn.hutool.core.util.TypeUtil;
+import com.wen.awenboot.hutool.test.bean.Holder;
+import com.wen.awenboot.hutool.test.bean.UserTest;
 
 import java.util.List;
 
@@ -30,7 +32,7 @@ public class ConvertMain {
         String bStr = Convert.toStr(b);
         System.out.println(bStr);
         Holder<String> h1 = new Holder<>();
-        Holder<User> h2 = new Holder<>();
+        Holder<UserTest> h2 = new Holder<>();
         Class<?> clazz1 = TypeUtil.getClass(h1.getClass());
         Class<?> clazz2 = TypeUtil.getClass(h2.getClass());
         System.out.println("clazz1:" + clazz1);
