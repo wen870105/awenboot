@@ -1,5 +1,6 @@
 package com.wen.awenboot.common;
 
+import cn.hutool.core.map.MapUtil;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -106,10 +107,17 @@ public class OkHttpUtil {
      * @return
      */
     public Response postData(String url, Map<String, String> bodyParams) {
+        return postData(url, null, bodyParams);
+    }
+
+    public Response postData(String url, Map<String, String> headerParams, Map<String, String> bodyParams) {
         //1构造RequestBody
         RequestBody body = setRequestBody(bodyParams);
         //2 构造Request
         Request.Builder requestBuilder = new Request.Builder();
+        if (MapUtil.isNotEmpty(headerParams)) {
+            headerParams.forEach((k, v) -> requestBuilder.addHeader(k, v));
+        }
         Request request = requestBuilder.post(body).url(url).build();
         //3 将Request封装为Call
         Call call = mOkHttpClient.newCall(request);
