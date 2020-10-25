@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+		
+	@author Wen
+ 	@since 2020-10-23 
+-->
+<mapper namespace="com.migu.tsg.damportal.dao.MiguTagEnumMapper">
+	
+	<resultMap id="MiguTagEnum-Map" type="com.migu.tsg.damportal.domain.MiguTagEnum">
+		<result property="id" column="id"/>
+		<result property="enumId" column="enum_id"/>
+		<result property="enumName" column="enum_name"/>
+		<result property="enumAlias" column="enum_alias"/>
+		<result property="enumFather" column="enum_father"/>
+		<result property="creator" column="creator"/>
+		<result property="createTime" column="create_time"/>
+		<result property="modifier" column="modifier"/>
+		<result property="modifyTime" column="modify_time"/>
+	</resultMap>
+	
+	
+	
+	
+	
+	
+</mapper>

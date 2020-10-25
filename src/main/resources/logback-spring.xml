@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration scan="true" scanPeriod="60 seconds" debug="false">
 
-    <property name="log.root" value="d:\\logs\\awen"/>
-    <property name="log.port" value="8080"/>
+<!--    <property name="log.root" value="d:\\logs\\awenboot"/>-->
 
+    <springProperty scope="context" name="LOG_PATH" source="logback.file"/>
 
     <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -16,14 +16,18 @@
               class="ch.qos.logback.core.rolling.RollingFileAppender">
         <prudent>true</prudent>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${log.root}/SECSService_${log.port}.log.%d{yyyyMMdd}</fileNamePattern>
+            <fileNamePattern>${LOG_PATH}/zhuangku.log.%d{yyyyMMdd}</fileNamePattern>
             <maxHistory>2</maxHistory>
         </rollingPolicy>
         <encoder>
             <pattern>[%d{HH:mm:ss.SSS}] %msg %n</pattern>
         </encoder>
     </appender>
-    <logger level="info" name="com.wen.awenboot.controller.PersonController"/>
+
+<!--    <logger name="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" level="trace" >-->
+<!--        <appender-ref ref="consoleAppender"/>-->
+<!--    </logger>-->
+<!--    <logger name="com.migu.tsg.damportal.dao" level="DEBUG" />-->
 
     <root level="INFO">
         <appender-ref ref="rollingFileAppender"/>

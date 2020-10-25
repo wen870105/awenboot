@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+	标签调用明细表,记录每个标签每天访问总量,记录维度为天	
+	@author Wen
+ 	@since 2020-10-23 
+-->
+<mapper namespace="com.migu.tsg.damportal.dao.MiguTagDetailCntMapper">
+
+    <resultMap id="MiguTagDetailCnt-Map" type="com.migu.tsg.damportal.domain.MiguTagDetailCnt">
+        <result property="id" column="id"/>
+        <result property="tagCode" column="tag_code"/>
+        <result property="tagCnt" column="tag_cnt"/>
+        <result property="createDate" column="create_date"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <update id="updateIncrementCntById" parameterType="MiguTagDetailCnt">
+	UPDATE migu_tag_detail_cnt
+		set tag_cnt = tag_cnt + #{tagCnt},
+		create_date =  #{createDate},
+		update_time = #{updateTime}
+			WHERE id = #{id}
+    </update>
+
+
+</mapper>
