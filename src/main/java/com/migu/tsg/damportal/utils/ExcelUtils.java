@@ -8,6 +8,7 @@ import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 import com.migu.tsg.damportal.domain.MiguTagInfo;
+import com.migu.tsg.damportal.enums.TagStatusEnum;
 import lombok.Data;
 
 import java.util.Date;
@@ -131,7 +132,7 @@ public class ExcelUtils {
 //        obj.setUpdatePeriodVal();
         obj.setCreateTime(date);
         obj.setUpdateTime(date);
-
+        obj.setStatus(TagStatusEnum.OPEN.getCode());
         obj.setCreatorAccount(SYSTEM);
         obj.setCreator(SYSTEM);
 

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration scan="true" scanPeriod="60 seconds" debug="false">
 
-<!--    <property name="log.root" value="d:\\logs\\awenboot"/>-->
+    <property name="log.root" value="d:\\logs\\awenboot"/>
 
-    <springProperty scope="context" name="LOG_PATH" source="logback.file"/>
+<!--    <springProperty scope="context" name="LOG_PATH" source="logback.file"/>-->
 
     <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -27,7 +27,7 @@
 <!--    <logger name="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" level="trace" >-->
 <!--        <appender-ref ref="consoleAppender"/>-->
 <!--    </logger>-->
-<!--    <logger name="com.migu.tsg.damportal.dao" level="DEBUG" />-->
+    <logger name="com.migu.tsg.damportal.dao" level="DEBUG" />
 
     <root level="INFO">
         <appender-ref ref="rollingFileAppender"/>

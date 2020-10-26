@@ -1,13 +1,19 @@
-package com.migu.tsg.damportal.controller.request;
+/**
+ * created by Wen.
+ */
+package com.migu.tsg.damportal.domain;
 
-import javax.validation.constraints.NotNull;
+import com.migu.tsg.damportal.domain.base.BaseDomain;
+
+import java.util.Date;
 
 /**
- * @author wen
- * @version 1.0
- * @date 2020/10/21 16:27
+ * 标签信息表,比migu_tag_attribute更详细
+ *
+ * @author Wen
+ * @since 2020-10-23
  */
-public class TagQueryRequest {
+public class MiguTagInfoQuery extends BaseDomain {
     /**
      * 标签名称,支持模糊搜索
      */
@@ -19,21 +25,15 @@ public class TagQueryRequest {
     /**
      * 创建开始时间yyyy-MM-dd(时间最大跨度为90天)
      */
-    @NotNull
-    private String createTimeStart;
+    private Date createTimeStart;
     /**
      * 创建结束时间yyyy-MM-dd(时间最大跨度为90天)
      */
-    @NotNull
-    private String createTimeEnd;
+    private Date createTimeEnd;
     /**
      * 父节点id,如果为空返回所有数据
      */
     private String parentCode;
-    /**
-     * 分页页数,默认第一页
-     */
-    private Integer pageIndex;
 
     public String getTagName() {
         return tagName;
@@ -51,19 +51,19 @@ public class TagQueryRequest {
         this.creator = creator;
     }
 
-    public String getCreateTimeStart() {
+    public Date getCreateTimeStart() {
         return createTimeStart;
     }
 
-    public void setCreateTimeStart(String createTimeStart) {
+    public void setCreateTimeStart(Date createTimeStart) {
         this.createTimeStart = createTimeStart;
     }
 
-    public String getCreateTimeEnd() {
+    public Date getCreateTimeEnd() {
         return createTimeEnd;
     }
 
-    public void setCreateTimeEnd(String createTimeEnd) {
+    public void setCreateTimeEnd(Date createTimeEnd) {
         this.createTimeEnd = createTimeEnd;
     }
 
@@ -73,13 +73,5 @@ public class TagQueryRequest {
 
     public void setParentCode(String parentCode) {
         this.parentCode = parentCode;
-    }
-
-    public Integer getPageIndex() {
-        return pageIndex;
-    }
-
-    public void setPageIndex(Integer pageIndex) {
-        this.pageIndex = pageIndex;
     }
 }

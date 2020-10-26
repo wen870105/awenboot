@@ -32,7 +32,7 @@ public class TagDetailCntCache {
 
     private LoadingCache<String, TagDetailCntVO> cache;
 
-    private int maximumSize = 2000;
+    private static final int MAXIMUM_SIZE = TagDataCache.MAXIMUM_SIZE;
 
     // 通过switchCache每日更新
     private Date cacheDate = DateTime.now();
@@ -119,7 +119,7 @@ public class TagDetailCntCache {
 
     private LoadingCache<String, TagDetailCntVO> buildCache() {
         LoadingCache<String, TagDetailCntVO> cache = CacheBuilder.newBuilder()
-                .maximumSize(maximumSize)
+                .maximumSize(MAXIMUM_SIZE)
                 .build(new CacheLoader<String, TagDetailCntVO>() {
                     @Override
                     public TagDetailCntVO load(String key) throws Exception {
@@ -132,6 +132,7 @@ public class TagDetailCntCache {
                         obj.setToDbDate(date);
                         return obj;
                     }
+
                 });
         return cache;
     }

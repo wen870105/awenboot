@@ -23,16 +23,16 @@ public interface BaseService<T> {
 
     public int updateById(T t);
 
-    public T selectById(long id);
+    public T selectById(Object id);
 
     public T selectOne(T t);
 
-    public List<T> selectList(T t);
+    public List<T> selectByExample(Object t);
 
     /**
      * 子类重写
      */
     public Mapper<T> getDao();
 
-    public Page<T> selectPage(T condtion, Page<T> page);
+    public Page<T> selectPage(Object condition);
 }

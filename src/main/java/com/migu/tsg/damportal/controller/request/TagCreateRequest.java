@@ -21,9 +21,13 @@ public class TagCreateRequest {
     private String parentCode;
 
     /**
+     * 标签分类:1统计2规则3挖掘
+     */
+    private Integer categoryType;
+
+    /**
      * 标签说明
      */
-    @NotNull
     private String memo;
 
     /**
@@ -142,5 +146,13 @@ public class TagCreateRequest {
 
     public void setCreator(String creator) {
         this.creator = creator;
+    }
+
+    public Integer getCategoryType() {
+        return categoryType;
+    }
+
+    public void setCategoryType(Integer categoryType) {
+        this.categoryType = categoryType;
     }
 }

@@ -21,31 +21,35 @@ public class BaseQuery implements Serializable {
 
     // 分页起始属性
     @Transient
-    private int startIndex = 1;
+    private Integer startIndex;
     @Transient
-    private int offset;
+    private Integer offset;
+    @Transient
+    private Integer pageIndex;
+    // 排序字段
+    @Transient
+    private String orderField;
+    // 排序字段类型
+    @Transient
+    private String orderFieldType;
+    // 查询扩展
+    @Transient
+    private Map<String, Object> queryData;
 
-    @Transient
-    private String orderField;// 排序字段
-    @Transient
-    private String orderFieldType;// 排序字段类型
-    @Transient
-    private Map<String, Object> queryData;// 查询扩展
-
-    public int getOffset() {
-        return offset < 1 ? 0 : offset;
+    public Integer getStartIndex() {
+        return startIndex;
     }
 
-    public void setOffset(int offset) {
-        this.offset = offset;
-    }
-
-    public int getStartIndex() {
-        return startIndex < 0 ? 1 : startIndex;
-    }
-
-    public void setStartIndex(int startIndex) {
+    public void setStartIndex(Integer startIndex) {
         this.startIndex = startIndex;
+    }
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public void setOffset(Integer offset) {
+        this.offset = offset;
     }
 
     public String getOrderField() {
@@ -81,4 +85,13 @@ public class BaseQuery implements Serializable {
         }
         queryData.put(key, value);
     }
+
+    public Integer getPageIndex() {
+        return pageIndex;
+    }
+
+    public void setPageIndex(Integer pageIndex) {
+        this.pageIndex = pageIndex;
+    }
+
 }

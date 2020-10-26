@@ -3,10 +3,9 @@ package com.migu.tsg.damportal.controller.response;
 /**
  * @author wen
  * @version 1.0
- * @date 2020/10/21 16:20
+ * @date 2020/10/21 16:39
  */
-public class TagDetailResponse {
-
+public class TagQueryResponse {
     /**
      * 标签编码
      */
@@ -30,6 +29,11 @@ public class TagDetailResponse {
      * 父节点标签编码
      */
     private String parentCode;
+
+    /**
+     * 父节点标签名称
+     */
+    private String parentName;
 
     /**
      * 标签说明
@@ -75,10 +79,26 @@ public class TagDetailResponse {
      * 创建人员账号
      */
     private String creatorAccount;
+
     /**
      * 建人员名称
      */
     private String creator;
+
+    /**
+     * 调用次数
+     */
+    private Long callCounter;
+
+    /**
+     * 标签覆盖人次
+     */
+    private Long coverPeople;
+
+    /**
+     * 标签覆盖率,百分比
+     */
+    private String coverRate;
 
     public String getTagCode() {
         return tagCode;
@@ -118,6 +138,14 @@ public class TagDetailResponse {
 
     public void setParentCode(String parentCode) {
         this.parentCode = parentCode;
+    }
+
+    public String getParentName() {
+        return parentName;
+    }
+
+    public void setParentName(String parentName) {
+        this.parentName = parentName;
     }
 
     public String getMemo() {
@@ -198,5 +226,29 @@ public class TagDetailResponse {
 
     public void setCreator(String creator) {
         this.creator = creator;
+    }
+
+    public Long getCallCounter() {
+        return callCounter;
+    }
+
+    public void setCallCounter(Long callCounter) {
+        this.callCounter = callCounter;
+    }
+
+    public Long getCoverPeople() {
+        return coverPeople;
+    }
+
+    public void setCoverPeople(Long coverPeople) {
+        this.coverPeople = coverPeople;
+    }
+
+    public String getCoverRate() {
+        return coverRate;
+    }
+
+    public void setCoverRate(String coverRate) {
+        this.coverRate = coverRate;
     }
 }
