@@ -3,6 +3,7 @@ package com.wen.awenboot.task;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.util.concurrent.RateLimiter;
 import com.wen.awenboot.biz.service.ZhuangkuFileService;
 import com.wen.awenboot.common.OkHttpUtil;
@@ -10,8 +11,8 @@ import com.wen.awenboot.common.ReadFilePageUtil;
 import com.wen.awenboot.common.ThreadPoolThreadFactoryUtil;
 import com.wen.awenboot.config.ZhuangkuConfig;
 import com.wen.awenboot.integration.zhuangku.Result;
+import com.wen.awenboot.utils.PaasSecretHandler;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -178,30 +180,38 @@ public class InitMusic {
         }
     }
 
-    //    0000	查询成功，返回产品推荐查询结果。
-    //    0001	查询成功，无产品推荐内容。
-    //    1002	查询失败，请求手机号码格式不符合要求。
-    //    1003	查询失败，系统内部故障。
     private Result getResult(String phone) {
         long start = System.currentTimeMillis();
         String url = cfg.getTargetUrl();
         Map<String, String> header = new HashMap<>();
-        header.put("Content-Type", "application/json");
-        header.put("secretId", "9155CBA");
-        header.put("requestRefId", "20200710616161AdfA335605");
-        header.put("signature", "KUHcExujn2Q1n7F2Wc0xPUhQXo9wwiiVfJjz/vmIXmE=");
+        try {
+            Map<String, String> headerParams = PaasSecretHandler.getHeaderParams();
+            header.putAll(headerParams);
+        } catch (Exception e) {
+            log.error("", e);
+            return null;
+        }
+//        curl -H 'Content-Type:application/json' -H 'secretId:9155CBA' -H 'requestRefId:MIGU_1603877480996'
+//        -H "x-date:Wed, 28 Oct 2020 09:31:20 GMT" -H 'signature:vg86iBJ5muSaF4IuqyUnMybnJH2JJTg5r951PIv4rgM=' 
+//        -d '{"userId":"18703754147"}' http://10.191.1.48:19999/80114801
+        JSONObject obj = new JSONObject();
+        obj.put("userId", phone);
 
-        Map<String, String> body = new HashMap<>();
-        body.put("userId", phone);
-
-        Response resp = client.postData(url, header, body);
         Result result = null;
+
+        String resp = null;
+        try {
+            resp = client.postJson(url, header, obj.toJSONString());
+        } catch (IOException e) {
+            log.error("", e);
+            return result;
+        }
+
         String ret = null;
 
         try {
             printCount++;
-            ret = resp.body().string();
-            result = JSON.parseObject(ret, Result.class);
+            result = JSON.parseObject(resp, Result.class);
         } catch (Exception e) {
             log.error("请求异常,ret={}", ret, e);
         }

@@ -227,9 +227,14 @@ public class OkHttpUtil {
         return ssfFactory;
     }
 
-    public String postJson(String url, String json) throws IOException {
+    public String postJson(String url, Map<String, String> headerParams, String json) throws IOException {
         RequestBody body = RequestBody.create(JSON, json);
-        Request request = new Request.Builder()
+
+        Request.Builder builder = new Request.Builder();
+        if (MapUtil.isNotEmpty(headerParams)) {
+            headerParams.forEach((k, v) -> builder.addHeader(k, v));
+        }
+        Request request = builder
                 .url(url)
                 .post(body)
                 .build();
