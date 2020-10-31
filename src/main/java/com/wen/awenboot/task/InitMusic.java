@@ -2,6 +2,8 @@ package com.wen.awenboot.task;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.date.TimeInterval;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.util.concurrent.RateLimiter;
@@ -10,7 +12,7 @@ import com.wen.awenboot.common.OkHttpUtil;
 import com.wen.awenboot.common.ReadFilePageUtil;
 import com.wen.awenboot.common.ThreadPoolThreadFactoryUtil;
 import com.wen.awenboot.config.ZhuangkuConfig;
-import com.wen.awenboot.integration.zhuangku.Result;
+import com.wen.awenboot.integration.zhuangku.ResultMusic;
 import com.wen.awenboot.utils.PaasSecretHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -124,7 +127,7 @@ public class InitMusic {
 
         int limit = cfg.getReadFileLimit();
         while (start < count) {
-//            refreshLimitRateIfNeed(limiter);
+            refreshLimitRateIfNeed(limiter);
             log.info("开始读取文件,流控速率={},name={},start={},limit={}", limiter.getRate(), file.getPath(), start, limit);
             List<String> strings = null;
             try {
@@ -135,23 +138,37 @@ public class InitMusic {
 
 
             if (strings != null && strings.size() > 0) {
+                CountDownLatch cdl = new CountDownLatch(strings.size());
                 for (String phone : strings) {
                     try {
                         limiter.acquire();
-                        // 测试阶段单线程跑
-//                        executor.execute(() -> {
-                        try {
-                            Result result = getResult(phone);
-                            wirteData(phone, result, zkfs);
-                        } catch (Throwable e) {
-                            log.error("访问接口写入日志文件异常,phone={}", phone, e);
-                        }
-//                        });
+                        executor.execute(() -> {
+                            String resp = null;
+                            try {
+                                resp = getResult(phone);
+                                if (StrUtil.isNotBlank(resp)) {
+                                    return;
+                                }
+                                ResultMusic ret = JSON.parseObject(resp, ResultMusic.class);
+                                wirteData(phone, ret, zkfs);
+                            } catch (Throwable e) {
+                                log.error("访问接口写入日志文件异常resp={},phone={}", resp, phone, e);
+                            } finally {
+                                cdl.countDown();
+                            }
+                        });
                     } catch (Throwable e) {
                         log.error("访问接口写入日志文件异常,phone={}", phone, e);
                     }
                 }
-                zkfs.wirteTempFileProperties(file.getName(), (start + strings.size()));
+                try {
+                    // 这里的目的为了少丢失数据,线程不能一直等待rpc的结果
+                    cdl.await(10, TimeUnit.SECONDS);
+                    // 记录已经完成文件的行数
+                    zkfs.wirteTempFileProperties(file.getName(), (start + strings.size()));
+                } catch (InterruptedException e) {
+                    log.error("", e);
+                }
             }
             start += limit;
         }
@@ -159,11 +176,11 @@ public class InitMusic {
     }
 
 
-    private void wirteData(String phone, Result result, ZhuangkuFileService zkfs) {
-        if ("0000".equalsIgnoreCase(result.getResultCode())) {
+    private void wirteData(String phone, ResultMusic result, ZhuangkuFileService zkfs) {
+        if (result.getProductInfo() != null) {
             printWriteCount++;
             StringBuilder sb = new StringBuilder(50);
-            sb.append(phone).append("=").append(result.getProductInfo().getProducts()).append("\r\n");
+            sb.append(phone).append("=").append(result.getProductInfo()).append("\r\n");
             zkfs.wirte(sb.toString());
         }
     }
@@ -180,12 +197,13 @@ public class InitMusic {
         }
     }
 
-    private Result getResult(String phone) {
+    private String getResult(String phone) {
         long start = System.currentTimeMillis();
         String url = cfg.getTargetUrl();
         Map<String, String> header = new HashMap<>();
+        Map<String, String> headerParams = null;
         try {
-            Map<String, String> headerParams = PaasSecretHandler.getHeaderParams();
+            headerParams = PaasSecretHandler.getHeaderParams();
             header.putAll(headerParams);
         } catch (Exception e) {
             log.error("", e);
@@ -197,32 +215,24 @@ public class InitMusic {
         JSONObject obj = new JSONObject();
         obj.put("userId", phone);
 
-        Result result = null;
 
+        TimeInterval timeInterval = new TimeInterval();
         String resp = null;
         try {
+
+            printCount++;
             resp = client.postJson(url, header, obj.toJSONString());
         } catch (IOException e) {
-            log.error("", e);
-            return result;
+            log.error("耗时{}ms,headerParams={},请求异常url={},phone={}", timeInterval.interval(), headerParams.toString(), url, phone, e);
+            return resp;
         }
-
-        String ret = null;
-
-        try {
-            printCount++;
-            result = JSON.parseObject(resp, Result.class);
-        } catch (Exception e) {
-            log.error("请求异常,ret={}", ret, e);
-        }
-
 
         long end = System.currentTimeMillis();
         if (printCount % cfg.getPrintFlag() == 0) {
-            log.info("耗时{}ms,间隔{}次请求打印一次日志,ret={},phone={}", (end - start), cfg.getPrintFlag(), ret, phone);
+            log.info("耗时{}ms,间隔{}次请求打印一次日志,ret={},phone={}", (end - start), cfg.getPrintFlag(), resp, phone);
         }
 
-        return result;
+        return resp;
     }
 }
 
