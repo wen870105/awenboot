@@ -27,13 +27,14 @@ public class PaasSecretHandler {
 
     private final static String REF_PREFIX = "MIGU_";
 
-    private static String secretId = "9155CBA";
+    private static String secretId = "9Gm7422Kxq9Ff19cs9n7";
 
-    private static String secret = "Z2dFTndDYUVXY1gwRTJ2UHJyQWFWUT09";
+    private static String secret = "pxOzvqA+BTaOKguwaOaatOnpXWE9LL7LhRd5X4Ev1a/KtKI7ddYoxTN8GlI=";
 
     private static String algorithm = "HmacSHA256";
 
     public static void main(String[] args) throws Exception {
+//        curl -H 'Content-Type:application/json' -H 'secretId:9Gm7422Kxq9Ff19cs9n7' -H 'requestRefId:MIGU_1604370186272' -H "x-date:Tue, 03 Nov 2020 02:23:06 GMT" -H 'signature:QgNZ3z7WAUDYEE80/iAU2BD9dUzmUlOjhDKcWoLRX/s=' -d '{"userId":"18703754147"}' http://10.191.1.48:19999/78578649/
         Map<String, String> map = getHeaderParams();
         System.out.println(JSON.toJSONString(map));
 
