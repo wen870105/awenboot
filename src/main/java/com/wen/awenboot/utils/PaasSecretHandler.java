@@ -1,6 +1,8 @@
 package com.wen.awenboot.utils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
@@ -10,9 +12,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.TimeZone;
 
 /**
@@ -29,16 +29,30 @@ public class PaasSecretHandler {
 
     private static String secretId = "9Gm7422Kxq9Ff19cs9n7";
 
-    private static String secret = "pxOzvqA+BTaOKguwaOaatOnpXWE9LL7LhRd5X4Ev1a/KtKI7ddYoxTN8GlI=";
+    private static String secret = "ZTE2UXNUUXBwV0RmdEV3Nmc0UjlxUT09";
 
     private static String algorithm = "HmacSHA256";
 
     public static void main(String[] args) throws Exception {
-//        curl -H 'Content-Type:application/json' -H 'secretId:9Gm7422Kxq9Ff19cs9n7' -H 'requestRefId:MIGU_1604370186272' -H "x-date:Tue, 03 Nov 2020 02:23:06 GMT" -H 'signature:QgNZ3z7WAUDYEE80/iAU2BD9dUzmUlOjhDKcWoLRX/s=' -d '{"userId":"18703754147"}' http://10.191.1.48:19999/78578649/
-        Map<String, String> map = getHeaderParams();
-        System.out.println(JSON.toJSONString(map));
+//        curl -H 'Content-Type:application/json' -X POST -d '{"head":{"signature":"jaK655Lo6J8iotr4oPgNy7dfHqtmM5Bk/LJ8zez6xxw=","secretId":"9Gm7422Kxq9Ff19cs9n7","x-date":"Tue, 03 Nov 2020 05:43:46 GMT","requestRefId":"MIGU_1604382226070"},"request":{"param":[{"user_id":"13502089791"}]}}' http://10.191.1.48:19999/78578649
+        System.out.println(getRequestBody("13502089791"));
 
     }
+
+    public static String getRequestBody(String phone) throws Exception {
+        JSONObject head = getHeaderParams();
+        JSONObject json = new JSONObject();
+        json.put("head", head);
+        JSONObject request = new JSONObject();
+        JSONArray param = new JSONArray();
+        JSONObject user = new JSONObject();
+        user.put("user_id", phone);
+        param.add(user);
+        request.put("param", param);
+        json.put("request", request);
+        return json.toJSONString();
+    }
+
 
     public static PaasBean getBean() throws Exception {
         PaasBean ret = new PaasBean();
@@ -59,8 +73,8 @@ public class PaasSecretHandler {
         return ret;
     }
 
-    public static Map<String, String> getHeaderParams() throws Exception {
-        Map<String, String> result = new HashMap<>();
+    public static JSONObject getHeaderParams() throws Exception {
+        JSONObject result = new JSONObject();
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT, Locale.US);
         formatter.setTimeZone(TimeZone.getTimeZone(TIME_ZONE));
         // GMT格式的时间

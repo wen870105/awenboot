@@ -3,9 +3,9 @@ package com.wen.awenboot.task;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.TimeInterval;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.google.common.util.concurrent.RateLimiter;
 import com.wen.awenboot.biz.service.ZhuangkuFileService;
 import com.wen.awenboot.common.OkHttpUtil;
@@ -177,10 +177,10 @@ public class InitMusic {
 
 
     private void wirteData(String phone, ResultMusic result, ZhuangkuFileService zkfs) {
-        if (result.getProductInfo() != null) {
+        if ("0000".equalsIgnoreCase(result.getHead().getResponseCode())) {
             printWriteCount++;
             StringBuilder sb = new StringBuilder(50);
-            sb.append(phone).append("=").append(result.getProductInfo()).append("\r\n");
+            sb.append(phone).append("=").append(result.getResponse().getParam().get(0).getProduct_info()).append("\r\n");
             zkfs.wirte(sb.toString());
         }
     }
@@ -188,12 +188,23 @@ public class InitMusic {
     private void refreshLimitRateIfNeed(RateLimiter limiter) {
         DateTime date = DateUtil.date();
         int hour = date.hour(true);
+
+        int qps = 0;
+        if (hour >= 0 && hour < 8) {
+            qps = RandomUtil.randomInt(0, 50);
+        } else {
+            qps = RandomUtil.randomInt(50, 300);
+        }
+
+//        0-8点 （0-50tps）
+//        8-24点 （50-300tps）
+
         int minute = date.minute();
         if (minute != currentMinute) {
-            int rate = cfg.getRateLimiterQpsByHHmm(hour, minute);
+//            int rate = cfg.getRateLimiterQpsByHHmm(hour, minute);
             currentMinute = minute;
-            limiter.setRate(rate);
-            log.info("每分钟更新流控速率,minute={},流控速率rate={}", minute, rate);
+            limiter.setRate(qps);
+            log.info("每分钟更新流控速率,minute={},流控速率rate={}", minute, qps);
         }
     }
 
@@ -201,10 +212,10 @@ public class InitMusic {
         long start = System.currentTimeMillis();
         String url = cfg.getTargetUrl();
         Map<String, String> header = new HashMap<>();
-        Map<String, String> headerParams = null;
+        header.put("Content-Type", "application/json");
+        String body = null;
         try {
-            headerParams = PaasSecretHandler.getHeaderParams();
-            header.putAll(headerParams);
+            body = PaasSecretHandler.getRequestBody(phone);
         } catch (Exception e) {
             log.error("", e);
             return null;
@@ -212,8 +223,6 @@ public class InitMusic {
 //        curl -H 'Content-Type:application/json' -H 'secretId:9155CBA' -H 'requestRefId:MIGU_1603877480996'
 //        -H "x-date:Wed, 28 Oct 2020 09:31:20 GMT" -H 'signature:vg86iBJ5muSaF4IuqyUnMybnJH2JJTg5r951PIv4rgM=' 
 //        -d '{"userId":"18703754147"}' http://10.191.1.48:19999/80114801
-        JSONObject obj = new JSONObject();
-        obj.put("userId", phone);
 
 
         TimeInterval timeInterval = new TimeInterval();
@@ -221,9 +230,9 @@ public class InitMusic {
         try {
 
             printCount++;
-            resp = client.postJson(url, header, obj.toJSONString());
+            resp = client.postJson(url, header, body);
         } catch (IOException e) {
-            log.error("耗时{}ms,headerParams={},请求异常url={},phone={}", timeInterval.interval(), headerParams.toString(), url, phone, e);
+            log.error("耗时{}ms,body={},请求异常url={},phone={}", timeInterval.interval(), body, url, phone, e);
             return resp;
         }
 
