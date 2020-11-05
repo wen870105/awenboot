@@ -238,12 +238,22 @@ public class OkHttpUtil {
                 .url(url)
                 .post(body)
                 .build();
-        Response response = mOkHttpClient.newCall(request).execute();
-        if (response.isSuccessful()) {
-            return response.body().string();
-        } else {
-            throw new IOException("Unexpected code " + response);
+        Response response = null;
+        try {
+            response = mOkHttpClient.newCall(request).execute();
+            if (response.isSuccessful()) {
+                return response.body().string();
+            } else {
+                throw new IOException("Unexpected code " + response);
+            }
+        } catch (Exception e) {
+            throw new IOException("Unexpected code " + e.getMessage());
+        } finally {
+            if (response != null) {
+                response.close();
+            }
         }
+
     }
 
     public void postJsonAsyn(String url, String json, final NetCall netCall) throws IOException {

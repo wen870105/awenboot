@@ -57,6 +57,11 @@ public class InitIMEI {
 
     @PostConstruct
     private void init() {
+        if (!"imei".equalsIgnoreCase(cfg.getTaskName())) {
+            log.info("不启动imei,taskName={}", cfg.getTaskName());
+            return;
+        }
+
         Thread thd = new Thread(() -> {
             try {
                 TimeUnit.SECONDS.sleep(10);
