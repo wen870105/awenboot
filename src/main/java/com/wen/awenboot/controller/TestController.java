@@ -3,6 +3,8 @@ package com.wen.awenboot.controller;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.TimeInterval;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.wen.awenboot.biz.service.ResolverFileService;
 import com.wen.awenboot.common.OkHttpUtil;
 import com.wen.awenboot.config.ZhuangkuConfig;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -45,6 +48,27 @@ public class TestController {
         info.setProducts("product1:1.76,p2:2,p3:4");
         info.setProvId("");
         ret.setProductInfo(info);
+        return ret;
+    }
+
+    @RequestMapping(value = "/music")
+    @ResponseBody
+    public Object testHusic(@RequestBody String request) {
+        log.info("testMusic,request={}", request);
+        JSONObject ret = new JSONObject();
+
+        JSONObject head = new JSONObject();
+        head.put("serviceCode", "0000");
+        JSONObject resp = new JSONObject();
+        ret.put("head", head);
+        ret.put("response", resp);
+
+        JSONArray arr = new JSONArray();
+        JSONObject user = new JSONObject();
+        user.put("product_info", "123:11");
+        arr.add(user);
+        resp.put("param", arr);
+
         return ret;
     }
 

@@ -61,8 +61,9 @@ public class InitMusic {
 
     @PostConstruct
     private void init() {
-        if (!"music".equalsIgnoreCase(cfg.getTaskName())) {
-            log.info("不启动music,taskName={}", cfg.getTaskName());
+        if ("music".equalsIgnoreCase(cfg.getTaskName())) {
+            log.info("启动", cfg.getTaskName());
+        }else{
             return;
         }
         Thread thd = new Thread(() -> {
@@ -125,7 +126,7 @@ public class InitMusic {
         int limit = cfg.getReadFileLimit();
         while (start < count) {
             refreshLimitRateIfNeed(limiter);
-            log.info("开始读取文件,流控速率={},name={},start={},limit={}", limiter.getRate(), file.getPath(), start, limit);
+            log.info("开始读取文件,流控速率={},name={},start={},limit={},printCount={}", limiter.getRate(), file.getPath(), start, limit, printCount);
             List<String> strings = null;
             try {
                 strings = ReadFilePageUtil.readListPage(file.getPath(), start, limit);
@@ -143,7 +144,7 @@ public class InitMusic {
                             String resp = null;
                             try {
                                 resp = getResult(phone);
-                                if (StrUtil.isNotBlank(resp)) {
+                                if (StrUtil.isBlank(resp)) {
                                     return;
                                 }
                                 ResultMusic ret = JSON.parseObject(resp, ResultMusic.class);
