@@ -54,7 +54,7 @@ public class TestController {
     @RequestMapping(value = "/music")
     @ResponseBody
     public Object testHusic(@RequestBody String request) {
-        log.info("testMusic,request={}", request);
+//        log.info("testMusic,request={}", request);
         JSONObject ret = new JSONObject();
 
         JSONObject head = new JSONObject();

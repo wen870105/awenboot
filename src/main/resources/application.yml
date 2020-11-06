@@ -11,9 +11,10 @@ zhuangku:
   exportDir: D:\\wen_test\\export\\
   rateLimiterQps: 100
   #  targetUrl: http://117.128.1.49:7011/recommendService/services/proQuery/102/004050160005/01/
-  targetUrl: http://127.0.0.1:8080/test/header/
+  targetUrl: http://127.0.0.1:8080/test/music/
   readFileLimit: 100
-  printFlag: 1000
+  printFlag: 10
+  taskName: 'music'
   rateLimiterQpsMap:
     0: 200
     1: 200
