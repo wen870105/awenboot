@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class InitMusic {
-    private static ExecutorService executor = new ThreadPoolExecutor(32, 64, 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(10240),
+    private static ExecutorService executor = new ThreadPoolExecutor(32, 32, 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(1024),
             ThreadPoolThreadFactoryUtil.nameThreadFactory("okhttp-pool"), new ThreadPoolExecutor.CallerRunsPolicy());
 
 
@@ -62,7 +62,7 @@ public class InitMusic {
     @PostConstruct
     private void init() {
         if ("music".equalsIgnoreCase(cfg.getTaskName())) {
-            log.info("启动", cfg.getTaskName());
+            log.info("启动,{}", cfg.getTaskName());
         }else{
             return;
         }

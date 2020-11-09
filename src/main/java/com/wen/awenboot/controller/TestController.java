@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +36,11 @@ public class TestController {
     private static int counter = 333;
 
     private static OkHttpUtil client = OkHttpUtil.getInstance();
+
+    @PostConstruct
+    private void init() {
+        log.error("11123");
+    }
 
     //    @RequestMapping(value = "/header", produces = "application/json;charset=UTF-8")
     @RequestMapping(value = "/header")
