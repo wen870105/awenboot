@@ -188,7 +188,7 @@ public class InitMusic {
 
         int qps = 0;
         if (hour >= 0 && hour < 8) {
-            qps = RandomUtil.randomInt(0, 50);
+            qps = RandomUtil.randomInt(1, 50);
         } else {
             qps = RandomUtil.randomInt(50, 300);
         }
