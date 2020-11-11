@@ -1,9 +1,6 @@
 package com.wen.awenboot.task;
 
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.TimeInterval;
-import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.util.concurrent.RateLimiter;
@@ -14,6 +11,7 @@ import com.wen.awenboot.common.ThreadPoolThreadFactoryUtil;
 import com.wen.awenboot.config.ZhuangkuConfig;
 import com.wen.awenboot.integration.zhuangku.ResultMusic;
 import com.wen.awenboot.utils.PaasSecretHandler;
+import com.wen.awenboot.utils.RateLimiterUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +61,7 @@ public class InitMusic {
     private void init() {
         if ("music".equalsIgnoreCase(cfg.getTaskName())) {
             log.info("启动,{}", cfg.getTaskName());
-        }else{
+        } else {
             return;
         }
         Thread thd = new Thread(() -> {
@@ -125,10 +123,10 @@ public class InitMusic {
 
         int limit = cfg.getReadFileLimit();
         while (start < count) {
-            refreshLimitRateIfNeed(limiter);
-            log.info("开始读取文件,流控速率={},name={},start={},limit={},printCount={}", limiter.getRate(), file.getPath(), start, limit, printCount);
             List<String> strings = null;
             try {
+                refreshLimitRateIfNeed(limiter);
+                log.info("开始读取文件,流控速率={},start={},limit={},printCount={},name={}", limiter.getRate(), start, limit, printCount, file.getPath());
                 strings = ReadFilePageUtil.readListPage(file.getPath(), start, limit);
             } catch (Exception e) {
                 log.error("读取数据文件异常,path={}", file.getPath(), e);
@@ -183,25 +181,9 @@ public class InitMusic {
     }
 
     private void refreshLimitRateIfNeed(RateLimiter limiter) {
-        DateTime date = DateUtil.date();
-        int hour = date.hour(true);
-
-        int qps = 0;
-        if (hour >= 0 && hour < 8) {
-            qps = RandomUtil.randomInt(1, 50);
-        } else {
-            qps = RandomUtil.randomInt(50, 300);
-        }
-
-//        0-8点 （0-50tps）
-//        8-24点 （50-300tps）
-
-        int minute = date.minute();
-        if (minute != currentMinute) {
-//            int rate = cfg.getRateLimiterQpsByHHmm(hour, minute);
+        Integer minute = RateLimiterUtils.refreshLimitRateIfNeed(limiter, cfg, currentMinute);
+        if (minute != null) {
             currentMinute = minute;
-            limiter.setRate(qps);
-            log.info("每分钟更新流控速率,minute={},流控速率rate={}", minute, qps);
         }
     }
 
@@ -220,12 +202,10 @@ public class InitMusic {
         TimeInterval timeInterval = new TimeInterval();
         String resp = null;
         try {
-
             printCount++;
             resp = client.postJson(url, header, body);
         } catch (IOException e) {
             log.error("耗时{}ms,body={},请求异常url={},phone={}", timeInterval.interval(), body, url, phone, e);
-            return resp;
         } finally {
             if (printCount % cfg.getPrintFlag() == 0) {
                 log.info("耗时{}ms,间隔{}次请求打印一次日志,ret={},phone={}", timeInterval.interval(), cfg.getPrintFlag(), resp, phone);

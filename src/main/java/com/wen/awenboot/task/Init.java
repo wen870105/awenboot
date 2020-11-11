@@ -1,8 +1,5 @@
 package com.wen.awenboot.task;
 
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.util.concurrent.RateLimiter;
 import com.wen.awenboot.biz.service.ZhuangkuFileService;
@@ -11,6 +8,7 @@ import com.wen.awenboot.common.ReadFilePageUtil;
 import com.wen.awenboot.common.ThreadPoolThreadFactoryUtil;
 import com.wen.awenboot.config.ZhuangkuConfig;
 import com.wen.awenboot.integration.zhuangku.Result;
+import com.wen.awenboot.utils.RateLimiterUtils;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
@@ -62,7 +60,7 @@ public class Init {
 //        # video,imei,music
         if ("video".equalsIgnoreCase(cfg.getTaskName())) {
             log.info("启动,{}", cfg.getTaskName());
-        }else{
+        } else {
             return;
         }
 
@@ -125,10 +123,10 @@ public class Init {
 
         int limit = cfg.getReadFileLimit();
         while (start < count) {
-            refreshLimitRateIfNeed(limiter);
-            log.info("开始读取文件,流控速率={},name={},start={},limit={}", limiter.getRate(), file.getPath(), start, limit);
             List<String> strings = null;
             try {
+                refreshLimitRateIfNeed(limiter);
+                log.info("开始读取文件,流控速率={},start={},limit={},printCount={},name={}", limiter.getRate(), start, limit, printCount, file.getPath());
                 strings = ReadFilePageUtil.readListPage(file.getPath(), start, limit);
             } catch (Exception e) {
                 log.error("读取数据文件异常,path={}", file.getPath(), e);
@@ -179,24 +177,9 @@ public class Init {
     }
 
     private void refreshLimitRateIfNeed(RateLimiter limiter) {
-        DateTime date = DateUtil.date();
-        int hour = date.hour(true);
-        int minute = date.minute();
-        if (minute != currentMinute) {
-
-            int rate = 0;
-            if (hour >= 0 && hour < 8) {
-                rate = RandomUtil.randomInt(0, 50);
-            } else {
-                rate = RandomUtil.randomInt(50, 300);
-            }
-//
-////        0-8点 （0-50tps）
-////        8-24点 （50-300tps）
-
+        Integer minute = RateLimiterUtils.refreshLimitRateIfNeed(limiter, cfg, currentMinute);
+        if (minute != null) {
             currentMinute = minute;
-            limiter.setRate(rate);
-            log.info("每分钟更新流控速率,minute={},流控速率rate={}", minute, rate);
         }
     }
 

@@ -13,11 +13,11 @@ zhuangku:
   #  targetUrl: http://117.128.1.49:7011/recommendService/services/proQuery/102/004050160005/01/
   targetUrl: http://127.0.0.1:8080/test/music/
   readFileLimit: 100
-  printFlag: 10
+  printFlag: 1000
   taskName: 'music'
   rateLimiterQpsMap:
-    0: 200
-    1: 200
+    0: 10
+    1: 10
     2: 150
     3: 90
     4: 90

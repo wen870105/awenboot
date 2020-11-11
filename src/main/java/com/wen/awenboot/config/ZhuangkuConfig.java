@@ -47,6 +47,16 @@ public class ZhuangkuConfig {
         log.info("ZhuangkuConfig={}", JSON.toJSONString(this));
     }
 
+
+    public int getRateLimiterQpsByHH(int hour) {
+        Integer ret = rateLimiterQpsMap.get(hour);
+
+        if (ret != null) {
+            return ret;
+        }
+        return 1;
+    }
+
     /**
      * qps和hours的关系
      * 如果没有配置值就用默认0-8点qps为20

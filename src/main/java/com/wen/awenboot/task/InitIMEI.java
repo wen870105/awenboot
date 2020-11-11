@@ -57,8 +57,9 @@ public class InitIMEI {
 
     @PostConstruct
     private void init() {
-        if (!"imei".equalsIgnoreCase(cfg.getTaskName())) {
-            log.info("不启动imei,taskName={}", cfg.getTaskName());
+        if ("imei".equalsIgnoreCase(cfg.getTaskName())) {
+            log.info("启动,{}", cfg.getTaskName());
+        } else {
             return;
         }
 
