@@ -4,6 +4,7 @@ import cn.hutool.core.date.TimeInterval;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.util.concurrent.RateLimiter;
+import com.wen.awenboot.biz.service.ResolverFileService;
 import com.wen.awenboot.biz.service.ZhuangkuFileService;
 import com.wen.awenboot.common.OkHttpUtil;
 import com.wen.awenboot.common.ReadFilePageUtil;
@@ -46,7 +47,7 @@ public class InitMusic {
 
     private static OkHttpUtil client = OkHttpUtil.getInstance();
 
-    private int printCount = 0;
+    private transient int printCount = 0;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -66,7 +67,7 @@ public class InitMusic {
         }
         Thread thd = new Thread(() -> {
             try {
-                TimeUnit.SECONDS.sleep(10);
+                TimeUnit.SECONDS.sleep(5);
             } catch (InterruptedException e) {
                 log.error("", e);
             }
@@ -106,6 +107,7 @@ public class InitMusic {
                     exportFile(f, zkfs, limiter, Integer.valueOf(properties[2]));
                 }
             }
+            new ResolverFileService(cfg, f.getName()).asyncExport();
         }
         long end = System.currentTimeMillis();
         log.info("导出完毕,耗时{}ms", end - start);
@@ -126,7 +128,7 @@ public class InitMusic {
             List<String> strings = null;
             try {
                 refreshLimitRateIfNeed(limiter);
-                log.info("开始读取文件,流控速率={},start={},limit={},printCount={},name={}", limiter.getRate(), start, limit, printCount, file.getPath());
+                log.info("读取文件,流控速率={},start={},limit={},printCount={},name={}", (int)limiter.getRate(), start, limit, printCount, file.getPath());
                 strings = ReadFilePageUtil.readListPage(file.getPath(), start, limit);
             } catch (Exception e) {
                 log.error("读取数据文件异常,path={}", file.getPath(), e);
@@ -205,7 +207,14 @@ public class InitMusic {
             printCount++;
             resp = client.postJson(url, header, body);
         } catch (IOException e) {
-            log.error("耗时{}ms,body={},请求异常url={},phone={}", timeInterval.interval(), body, url, phone, e);
+            log.error("超时超时重试,耗时{}ms,body={},请求异常url={},phone={}", timeInterval.interval(), body, url, phone, e.getMessage());
+
+            try {
+                printCount++;
+                resp = client.postJson(url, header, body);
+            } catch (IOException e1) {
+                log.error("耗时{}ms,body={},请求异常url={},phone={}", timeInterval.interval(), body, url, phone, e);
+            }
         } finally {
             if (printCount % cfg.getPrintFlag() == 0) {
                 log.info("耗时{}ms,间隔{}次请求打印一次日志,ret={},phone={}", timeInterval.interval(), cfg.getPrintFlag(), resp, phone);

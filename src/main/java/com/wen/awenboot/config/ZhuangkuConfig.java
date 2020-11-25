@@ -34,6 +34,10 @@ public class ZhuangkuConfig {
 
     private int printFlag;
 
+    private int readTimeout;
+
+    private int writeTimeout;
+
     private String taskName;
     /**
      * 读取的数据文件列表

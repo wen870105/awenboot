@@ -15,6 +15,8 @@ zhuangku:
   readFileLimit: 100
   printFlag: 1000
   taskName: 'music'
+  readTimeout: 5000
+  writeTimeout: 5000
   rateLimiterQpsMap:
     0: 10
     1: 10

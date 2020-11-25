@@ -1,6 +1,7 @@
 package com.wen.awenboot.biz.service;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.date.TimeInterval;
 import cn.hutool.core.util.StrUtil;
 import com.wen.awenboot.common.ReadFilePageUtil;
 import com.wen.awenboot.common.SpringUtil;
@@ -31,25 +32,38 @@ public class ResolverFileService {
 
     public ResolverFileService(ZhuangkuConfig cfg, String dsFileName) {
         this.cfg = cfg;
-        File dsFile = new File(cfg.getExportDir() + dsFileName);
+        String fName = dsFileName + ".txt";
+        File dsFile = new File(cfg.getExportDir() + fName);
         if (!dsFile.exists()) {
             log.info("dsFile为空={}", dsFile.getPath());
             return;
         }
         dataSourceFile = dsFile;
-        exportFile = new File(cfg.getExportDir() + "ret_" + dsFileName);
+        exportFile = new File(cfg.getExportDir() + "ret_" + fName);
         if (!exportFile.exists()) {
             try {
                 exportFile.createNewFile();
             } catch (IOException e) {
                 log.error("", e);
             }
-        }else{
-            wirte("",false);
+        } else {
+            wirte("", false);
         }
 
 
         log.info("初始化导出文件服务:dataSourceFile={},exportFile={}", dataSourceFile.getPath(), exportFile.getPath());
+    }
+
+    public void asyncExport() {
+        new Thread(() -> {
+            log.info("异步解析文件file1={}", this.dataSourceFile);
+            TimeInterval timer = DateUtil.timer();
+            if (getDataSourceFile() != null) {
+                export();
+            }
+            long interval = timer.interval();
+            log.info("解析文件耗时{}ms", interval);
+        }).start();
     }
 
     public void export() {
@@ -86,7 +100,7 @@ public class ResolverFileService {
         }
         int firstMark = str.indexOf("=");
         String phone = StrUtil.sub(str, 0, firstMark);
-        String products = StrUtil.sub(str, firstMark+1,str.length());
+        String products = StrUtil.sub(str, firstMark + 1, str.length());
 
         if (StringUtils.isBlank(products)) {
             return;
@@ -95,10 +109,10 @@ public class ResolverFileService {
         try {
 
             MapService map = SpringUtil.getBean(MapService.class);
-            if(map.exist(phone)){
+            if (map.exist(phone)) {
                 return;
             }
-            map.put(phone,"");
+            map.put(phone, "");
             if (products.indexOf(",") == -1) {
                 writeProductStr(phone, products);
             } else {
@@ -107,24 +121,28 @@ public class ResolverFileService {
                     writeProductStr(phone, product);
                 }
             }
-        }catch (Throwable e){
-            log.error("",e);
-            log.info("str={},phone={},products={}",str,phone,products);
+        } catch (Throwable e) {
+            log.error("", e);
+            log.info("str={},phone={},products={}", str, phone, products);
         }
     }
 
     private void writeProductStr(String phone, String products) {
         StringBuilder sb = new StringBuilder(50);
         String[] product = products.split(":");
+        if (product.length == 1) {
+            log.info("脏数据phone={},str={}", phone, products);
+            return;
+        }
         sb.append(phone).append("\t").append(product[0]).append("\t").append(product[1]).append("\t").append(DateUtil.offsetDay(DateUtil.date(), -2).toString("yyyyMMdd")).append("\n");
         wirte(sb.toString());
     }
 
     private void wirte(String str) {
-        wirte(str,true);
+        wirte(str, true);
     }
 
-    private void wirte(String str,boolean append) {
+    private void wirte(String str, boolean append) {
         try {
             FileUtils.write(exportFile, str, "UTF-8", append);
         } catch (IOException e) {

@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.util.concurrent.RateLimiter;
+import com.wen.awenboot.biz.service.ResolverFileService;
 import com.wen.awenboot.biz.service.ZhuangkuFileService;
 import com.wen.awenboot.common.OkHttpUtil;
 import com.wen.awenboot.common.ReadFilePageUtil;
@@ -105,6 +106,7 @@ public class InitIMEI {
                     exportFile(f, zkfs, limiter, Integer.valueOf(properties[2]));
                 }
             }
+            new ResolverFileService(cfg, f.getName()).asyncExport();
         }
         long end = System.currentTimeMillis();
         log.info("导出完毕,耗时{}ms", end - start);

@@ -1,7 +1,5 @@
 package com.wen.awenboot.controller;
 
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.date.TimeInterval;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -10,6 +8,7 @@ import com.wen.awenboot.common.OkHttpUtil;
 import com.wen.awenboot.config.ZhuangkuConfig;
 import com.wen.awenboot.integration.zhuangku.ProductInfo;
 import com.wen.awenboot.integration.zhuangku.Result;
+import com.wen.awenboot.integration.zhuangku.ResultMusic;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +38,8 @@ public class TestController {
     @RequestMapping(value = "/error")
     @ResponseBody
     public Object error() {
+        System.out.println(client.getData("http://www.baidu.com"));
+
         log.error("errorDemo");
         log.error("errorDemo");
         log.error("errorDemo");
@@ -71,21 +72,26 @@ public class TestController {
     @ResponseBody
     public Object testHusic(@RequestBody String request) {
 //        log.info("testMusic,request={}", request);
-        JSONObject ret = new JSONObject();
+        JSONObject resp = new JSONObject();
 
         JSONObject head = new JSONObject();
-        head.put("serviceCode", "0000");
-        JSONObject resp = new JSONObject();
-        ret.put("head", head);
-        ret.put("response", resp);
+        head.put("responseCode", "0000");
+
+        JSONObject response = new JSONObject();
+
 
         JSONArray arr = new JSONArray();
-        JSONObject user = new JSONObject();
-        user.put("product_info", "123:11");
-        arr.add(user);
-        resp.put("param", arr);
+        JSONObject obj1 = new JSONObject();
+        obj1.put("product_info", "1111:1111");
+        arr.add(obj1);
 
-        return ret;
+        response.put("param", arr);
+        resp.put("head", head);
+        resp.put("response", response);
+
+        ResultMusic resultMusic = JSON.parseObject(resp.toJSONString(), ResultMusic.class);
+
+        return resultMusic;
     }
 
     @RequestMapping(value = "/header/{phone}")
@@ -133,17 +139,7 @@ public class TestController {
     @ResponseBody
     public Object resolve(@PathVariable("file1") String file1) {
         log.info("异步解析文件file1={}", file1);
-        new Thread(() -> {
-            log.info("异步解析文件file1={}", file1);
-            TimeInterval timer = DateUtil.timer();
-            ResolverFileService rfs = new ResolverFileService(cfg, file1);
-            if (rfs.getDataSourceFile() != null) {
-                rfs.export();
-            }
-            long interval = timer.interval();
-            log.info("解析文件耗时{}ms", interval);
-        }).start();
-
+        new ResolverFileService(cfg, file1).asyncExport();
         return "success";
     }
 
