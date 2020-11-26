@@ -2,6 +2,7 @@ package com.wen.awenboot.task;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.util.concurrent.RateLimiter;
+import com.wen.awenboot.biz.service.ResolverFileService;
 import com.wen.awenboot.biz.service.ZhuangkuFileService;
 import com.wen.awenboot.common.OkHttpUtil;
 import com.wen.awenboot.common.ReadFilePageUtil;
@@ -39,7 +40,8 @@ public class Init {
             ThreadPoolThreadFactoryUtil.nameThreadFactory("okhttp-pool"), new ThreadPoolExecutor.CallerRunsPolicy());
 
 
-    private OkHttpUtil client = OkHttpUtil.getInstance();
+    @Autowired
+    private OkHttpUtil client;
 
     private int printCount = 0;
 
@@ -121,6 +123,7 @@ public class Init {
     private void exportFile(File file, ZhuangkuFileService zkfs, RateLimiter limiter, int start) {
         long count = ZhuangkuFileService.lineCount(file);
 
+        boolean isUpdate = false;
         int limit = cfg.getReadFileLimit();
         while (start < count) {
             List<String> strings = null;
@@ -134,6 +137,7 @@ public class Init {
 
 
             if (strings != null && strings.size() > 0) {
+                isUpdate = true;
                 CountDownLatch cdl = new CountDownLatch(strings.size());
                 for (String phone : strings) {
                     try {
@@ -162,6 +166,9 @@ public class Init {
                 }
             }
             start += limit;
+        }
+        if (isUpdate) {
+            new ResolverFileService(cfg, file.getName()).asyncExport();
         }
         zkfs.endExport();
     }

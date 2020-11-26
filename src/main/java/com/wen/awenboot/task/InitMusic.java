@@ -45,7 +45,8 @@ public class InitMusic {
             ThreadPoolThreadFactoryUtil.nameThreadFactory("okhttp-pool"), new ThreadPoolExecutor.CallerRunsPolicy());
 
 
-    private OkHttpUtil client = OkHttpUtil.getInstance();
+    @Autowired
+    private OkHttpUtil client;
 
     private transient int printCount = 0;
 
@@ -107,7 +108,6 @@ public class InitMusic {
                     exportFile(f, zkfs, limiter, Integer.valueOf(properties[2]));
                 }
             }
-            new ResolverFileService(cfg, f.getName()).asyncExport();
         }
         long end = System.currentTimeMillis();
         log.info("导出完毕,耗时{}ms", end - start);
@@ -123,6 +123,7 @@ public class InitMusic {
     private void exportFile(File file, ZhuangkuFileService zkfs, RateLimiter limiter, int start) {
         long count = ZhuangkuFileService.lineCount(file);
 
+        boolean isUpdate = false;
         int limit = cfg.getReadFileLimit();
         while (start < count) {
             List<String> strings = null;
@@ -136,6 +137,7 @@ public class InitMusic {
 
 
             if (strings != null && strings.size() > 0) {
+                isUpdate = true;
                 CountDownLatch cdl = new CountDownLatch(strings.size());
                 for (String phone : strings) {
                     try {
@@ -169,6 +171,9 @@ public class InitMusic {
                 }
             }
             start += limit;
+        }
+        if (isUpdate) {
+            new ResolverFileService(cfg, file.getName()).asyncExport();
         }
         zkfs.endExport();
     }

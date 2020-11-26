@@ -10,7 +10,10 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
@@ -30,11 +33,14 @@ import java.util.concurrent.TimeUnit;
  */
 
 @Slf4j
+@Service
 public class OkHttpUtil {
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final byte[] LOCKER = new byte[0];
-    private static OkHttpUtil mInstance;
     private OkHttpClient mOkHttpClient;
+
+    @Autowired
+    private ZhuangkuConfig cfg;
 
     /**
      * 自定义网络回调接口
@@ -45,12 +51,12 @@ public class OkHttpUtil {
         void failed(Call call, IOException e);
     }
 
-    private OkHttpUtil() {
-        ZhuangkuConfig cfg = SpringUtil.getBean(ZhuangkuConfig.class);
+    @PostConstruct
+    private void init() {
         log.info("READ_TIMEOUT={},WRITE_TIMEOUT={}", cfg.getReadTimeout(), cfg.getWriteTimeout());
         okhttp3.OkHttpClient.Builder ClientBuilder = new okhttp3.OkHttpClient.Builder();
         ClientBuilder.readTimeout(cfg.getReadTimeout(), TimeUnit.MILLISECONDS);
-        ClientBuilder.connectTimeout(cfg.getReadTimeout(), TimeUnit.MILLISECONDS);
+        ClientBuilder.connectTimeout(cfg.getConnectTimeout(), TimeUnit.MILLISECONDS);
         ClientBuilder.writeTimeout(cfg.getReadTimeout(), TimeUnit.MILLISECONDS);
         //支持HTTPS请求，跳过证书验证
         ClientBuilder.sslSocketFactory(createSSLSocketFactory());
@@ -61,22 +67,6 @@ public class OkHttpUtil {
             }
         });
         mOkHttpClient = ClientBuilder.build();
-    }
-
-    /**
-     * 单例模式获取OkHttpUtil
-     *
-     * @return
-     */
-    public static OkHttpUtil getInstance() {
-        if (mInstance == null) {
-            synchronized (LOCKER) {
-                if (mInstance == null) {
-                    mInstance = new OkHttpUtil();
-                }
-            }
-        }
-        return mInstance;
     }
 
     /**

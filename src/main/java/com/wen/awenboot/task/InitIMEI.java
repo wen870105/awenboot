@@ -40,7 +40,8 @@ public class InitIMEI {
             ThreadPoolThreadFactoryUtil.nameThreadFactory("okhttp-pool"), new ThreadPoolExecutor.CallerRunsPolicy());
 
 
-    private OkHttpUtil client = OkHttpUtil.getInstance();
+    @Autowired
+    private OkHttpUtil client;
 
     private int printCount = 0;
 
@@ -106,7 +107,6 @@ public class InitIMEI {
                     exportFile(f, zkfs, limiter, Integer.valueOf(properties[2]));
                 }
             }
-            new ResolverFileService(cfg, f.getName()).asyncExport();
         }
         long end = System.currentTimeMillis();
         log.info("导出完毕,耗时{}ms", end - start);
@@ -123,6 +123,7 @@ public class InitIMEI {
         long count = ZhuangkuFileService.lineCount(file);
 
         int limit = cfg.getReadFileLimit();
+        boolean isUpdate = false;
         while (start < count) {
             refreshLimitRateIfNeed(limiter);
 
@@ -136,6 +137,7 @@ public class InitIMEI {
 
 
             if (strings != null && strings.size() > 0) {
+                isUpdate = true;
                 for (String phone : strings) {
                     long imeiLng = 863846040914049L;
                     imeiLng = imeiLng + Long.valueOf(phone);
@@ -164,6 +166,9 @@ public class InitIMEI {
                 }
             }
             start += limit;
+        }
+        if (isUpdate) {
+            new ResolverFileService(cfg, file.getName()).asyncExport();
         }
         zkfs.endExport();
     }

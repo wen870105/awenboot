@@ -62,7 +62,7 @@ public class ResolverFileService {
                 export();
             }
             long interval = timer.interval();
-            log.info("解析文件耗时{}ms", interval);
+            log.info("解析文件name={},耗时{}ms", dataSourceFile.getName(), interval);
         }).start();
     }
 

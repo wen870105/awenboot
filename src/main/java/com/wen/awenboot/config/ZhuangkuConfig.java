@@ -34,9 +34,11 @@ public class ZhuangkuConfig {
 
     private int printFlag;
 
-    private int readTimeout;
+    private int readTimeout = 10000;
 
-    private int writeTimeout;
+    private int writeTimeout = 10000;
+
+    private int connectTimeout = 10000;
 
     private String taskName;
     /**
