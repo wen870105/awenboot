@@ -40,7 +40,7 @@ public class InitIMEI {
             ThreadPoolThreadFactoryUtil.nameThreadFactory("okhttp-pool"), new ThreadPoolExecutor.CallerRunsPolicy());
 
 
-    private static OkHttpUtil client = OkHttpUtil.getInstance();
+    private OkHttpUtil client = OkHttpUtil.getInstance();
 
     private int printCount = 0;
 

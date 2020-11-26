@@ -41,11 +41,11 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class InitMusic {
-    private static ExecutorService executor = new ThreadPoolExecutor(32, 32, 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(1024),
+    private static ExecutorService executor = new ThreadPoolExecutor(64, 64, 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(1024),
             ThreadPoolThreadFactoryUtil.nameThreadFactory("okhttp-pool"), new ThreadPoolExecutor.CallerRunsPolicy());
 
 
-    private static OkHttpUtil client = OkHttpUtil.getInstance();
+    private OkHttpUtil client = OkHttpUtil.getInstance();
 
     private transient int printCount = 0;
 
@@ -128,7 +128,7 @@ public class InitMusic {
             List<String> strings = null;
             try {
                 refreshLimitRateIfNeed(limiter);
-                log.info("读取文件,流控速率={},start={},limit={},printCount={},name={}", (int)limiter.getRate(), start, limit, printCount, file.getPath());
+                log.info("读取文件,流控速率={},start={},limit={},printCount={},name={}", (int) limiter.getRate(), start, limit, printCount, file.getPath());
                 strings = ReadFilePageUtil.readListPage(file.getPath(), start, limit);
             } catch (Exception e) {
                 log.error("读取数据文件异常,path={}", file.getPath(), e);
@@ -217,7 +217,7 @@ public class InitMusic {
             }
         } finally {
             if (printCount % cfg.getPrintFlag() == 0) {
-                log.info("耗时{}ms,间隔{}次请求打印一次日志,ret={},phone={}", timeInterval.interval(), cfg.getPrintFlag(), resp, phone);
+                log.info("[定期抽查请求]耗时{}ms,间隔{}次请求打印,ret={},phone={}", timeInterval.interval(), cfg.getPrintFlag(), resp, phone);
             }
         }
 

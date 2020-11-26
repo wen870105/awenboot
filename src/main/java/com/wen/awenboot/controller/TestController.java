@@ -4,13 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.wen.awenboot.biz.service.ResolverFileService;
-import com.wen.awenboot.common.OkHttpUtil;
 import com.wen.awenboot.config.ZhuangkuConfig;
 import com.wen.awenboot.integration.zhuangku.ProductInfo;
 import com.wen.awenboot.integration.zhuangku.Result;
 import com.wen.awenboot.integration.zhuangku.ResultMusic;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Controller;
@@ -19,9 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/test")
@@ -33,12 +28,9 @@ public class TestController {
 
     private static int counter = 333;
 
-    private static OkHttpUtil client = OkHttpUtil.getInstance();
-
     @RequestMapping(value = "/error")
     @ResponseBody
     public Object error() {
-        System.out.println(client.getData("http://www.baidu.com"));
 
         log.error("errorDemo");
         log.error("errorDemo");
@@ -94,46 +86,6 @@ public class TestController {
         return resultMusic;
     }
 
-    @RequestMapping(value = "/header/{phone}")
-    @ResponseBody
-    public Object testHeader123(@PathVariable("phone") String phone) {
-        log.info("testHader phone={},request={}", phone);
-        Result result = getResult(phone);
-        log.info("result={}", JSON.toJSONString(result));
-
-        return "success";
-    }
-
-    private Result getResult(String phone) {
-        long start = System.currentTimeMillis();
-        String url = "http://127.0.0.1:8080/test/header";
-        Map<String, String> header = new HashMap<>();
-        header.put("Content-Type", "application/json");
-        header.put("secretId", "9155CBA");
-        header.put("requestRefId", "20200710616161AdfA335605");
-        header.put("signature", "KUHcExujn2Q1n7F2Wc0xPUhQXo9wwiiVfJjz/vmIXmE=");
-
-        Map<String, String> body = new HashMap<>();
-        body.put("userId", phone);
-
-        Response resp = client.postData(url, header, body);
-        Result result = null;
-        String ret = null;
-
-        try {
-            ret = resp.body().string();
-            result = JSON.parseObject(ret, Result.class);
-        } catch (Exception e) {
-            log.error("请求异常,ret={}", ret, e);
-        }
-
-        long end = System.currentTimeMillis();
-//        if (printCount % cfg.getPrintFlag() == 0) {
-        log.info("耗时{}ms,间隔{}次请求打印一次日志,ret={},phone={}", (end - start), cfg.getPrintFlag(), ret, phone);
-//        }
-
-        return result;
-    }
 
     @RequestMapping("/resolve/{file1}")
     @ResponseBody
@@ -159,15 +111,6 @@ public class TestController {
         info.setProducts("product1:1.76,p2:2,p3:4");
         info.setProvId("");
         ret.setProductInfo(info);
-//        JSONObject obj = new JSONObject();
-//        obj.put("resultCode", "0001");
-//        obj.put("productInfo", null`);
-//        log.info("test demo===============" + obj.toJSONString());
-//        try {
-//            TimeUnit.MILLISECONDS.sleep(800);
-//        } catch (InterruptedException e) {
-//            log.error("", e);
-//        }
         return ret;
     }
 
