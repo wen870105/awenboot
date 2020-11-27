@@ -8,6 +8,7 @@ import com.wen.awenboot.config.ZhuangkuConfig;
 import com.wen.awenboot.integration.zhuangku.ProductInfo;
 import com.wen.awenboot.integration.zhuangku.Result;
 import com.wen.awenboot.integration.zhuangku.ResultMusic;
+import com.wen.awenboot.task.InitVideoDay;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -27,6 +28,9 @@ public class TestController {
     private ZhuangkuConfig cfg;
 
     private static int counter = 333;
+
+    @Autowired
+    private InitVideoDay initVideoDay;
 
     @RequestMapping(value = "/error")
     @ResponseBody
@@ -95,7 +99,6 @@ public class TestController {
         return "success";
     }
 
-
     @RequestMapping("/phone/{phone}")
     @ResponseBody
     public Object index(String phone) {
@@ -112,6 +115,12 @@ public class TestController {
         info.setProvId("");
         ret.setProductInfo(info);
         return ret;
+    }
+
+    @RequestMapping("/taskDay")
+    @ResponseBody
+    public Object taskDay() {
+        return initVideoDay.task();
     }
 
 }

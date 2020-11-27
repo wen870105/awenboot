@@ -18,7 +18,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author wen
@@ -46,24 +45,16 @@ public class InitVideoDay {
 
 
     @Scheduled(cron = "0/20 * *  * * ? ")
-    private void task() {
+    public boolean task() {
 //        # video,imei,music
         if ("video".equalsIgnoreCase(cfg.getTaskName())) {
             log.info("[启动员工每日撞库任务],{}", cfg.getTaskName());
         } else {
-            return;
+            return false;
         }
+        execute1();
 
-        Thread thd = new Thread(() -> {
-            try {
-                TimeUnit.SECONDS.sleep(10);
-            } catch (InterruptedException e) {
-                log.error("", e);
-            }
-            execute1();
-        });
-        thd.start();
-
+        return true;
     }
 
     private void execute1() {
