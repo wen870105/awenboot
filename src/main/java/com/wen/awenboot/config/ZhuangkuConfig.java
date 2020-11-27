@@ -41,6 +41,8 @@ public class ZhuangkuConfig {
     private int connectTimeout = 10000;
 
     private String taskName;
+
+    private String dayPeriodFile;
     /**
      * 读取的数据文件列表
      */

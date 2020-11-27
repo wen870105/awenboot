@@ -1,8 +1,10 @@
 package com.wen.awenboot.biz.service;
 
 import com.wen.awenboot.config.ZhuangkuConfig;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,6 +27,8 @@ public class ZhuangkuFileService {
 
     private String fileName;
 
+    private String prefix;
+
     // 记录当前撞库的状态
     private String tempFileName = "zhuangku";
 
@@ -32,25 +36,31 @@ public class ZhuangkuFileService {
 
     private String tempFilePpsEndKey = "isEnd";
     // 导出的文件
+    @Getter
     private File file;
     // 临时文件用来记录当前操作的第几行
     private File tempFile;
 
     private Properties tempFilePps;
 
-
-    public ZhuangkuFileService(ZhuangkuConfig cfg, String fileName) {
+    public ZhuangkuFileService(ZhuangkuConfig cfg, String fileName, String prefix) {
         this.cfg = cfg;
         this.fileName = fileName;
+        this.prefix = prefix;
         init();
     }
 
+    public ZhuangkuFileService(ZhuangkuConfig cfg, String fileName) {
+        this(cfg, fileName, null);
+    }
+
     private void init() {
-        String filePath = cfg.getExportDir() + fileName + ".txt";
+        String tmp = StringUtils.isBlank(prefix) ? "" : prefix;
+        String filePath = cfg.getExportDir() + fileName + tmp + ".txt";
         File file = new File(filePath);
         if (!file.exists()) {
             try {
-                if(!file.getParentFile().exists()) {
+                if (!file.getParentFile().exists()) {
                     file.getParentFile().mkdirs();
                 }
                 file.createNewFile();
@@ -60,7 +70,7 @@ public class ZhuangkuFileService {
         }
         this.file = file;
 
-        String tempFilePath = cfg.getExportDir() + tempFileName + "_" + fileName + ".txt";
+        String tempFilePath = cfg.getExportDir() + tempFileName + "_" + file.getName();
         File newTempFile = new File(tempFilePath);
         if (!newTempFile.exists()) {
             try {
@@ -91,11 +101,11 @@ public class ZhuangkuFileService {
     private void updateProperties() {
         FileOutputStream fos = null;
         try {
-             fos = new FileOutputStream(tempFile);
+            fos = new FileOutputStream(tempFile);
             tempFilePps.store(fos, "zhuang ku");
         } catch (IOException e) {
             log.error("", e);
-        }finally {
+        } finally {
             try {
                 fos.close();
             } catch (IOException e) {
