@@ -129,7 +129,7 @@ public class Init {
             List<String> strings = null;
             try {
                 refreshLimitRateIfNeed(limiter);
-                log.info("开始读取文件,流控速率={},start={},limit={},printCount={},name={}", limiter.getRate(), start, limit, printCount, file.getPath());
+                log.info("开始读取文件,流控速率={},start={},limit={},printCount={},name={}", (int) limiter.getRate(), start, limit, printCount, file.getPath());
                 strings = ReadFilePageUtil.readListPage(file.getPath(), start, limit);
             } catch (Exception e) {
                 log.error("读取数据文件异常,path={}", file.getPath(), e);

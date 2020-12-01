@@ -44,7 +44,7 @@ public class InitVideoDay {
     private int currentMinute;
 
 
-    @Scheduled(cron = "0/20 * *  * * ? ")
+    @Scheduled(cron = "10 0 * * * ? ")
     public boolean task() {
 //        # video,imei,music
         if ("video".equalsIgnoreCase(cfg.getTaskName())) {
