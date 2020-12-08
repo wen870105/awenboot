@@ -1,11 +1,14 @@
 package com.wen.awenboot.biz.service;
 
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.TimeInterval;
 import cn.hutool.core.util.StrUtil;
 import com.wen.awenboot.common.ReadFilePageUtil;
 import com.wen.awenboot.common.SpringUtil;
 import com.wen.awenboot.config.ZhuangkuConfig;
+import com.wen.awenboot.utils.ShellUtils;
+import com.wen.awenboot.utils.TagFileUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -56,14 +59,55 @@ public class ResolverFileService {
 
     public void asyncExport() {
         new Thread(() -> {
-            log.info("异步解析文件file1={}", this.dataSourceFile);
+            log.info("[异步解析]文件file1={}", this.dataSourceFile);
             TimeInterval timer = DateUtil.timer();
             if (getDataSourceFile() != null) {
                 export();
             }
             long interval = timer.interval();
-            log.info("解析文件name={},耗时{}ms", dataSourceFile.getName(), interval);
+            log.info("[异步解析]文件name={},耗时{}ms", dataSourceFile.getName(), interval);
+
+            try {
+                if (exportFile.exists()) {
+                    cpRetFileToDir();
+                    executeShellToHive();
+                }
+            } catch (Throwable e) {
+                log.error("[异步解析后异常]", e);
+            }
         }).start();
+    }
+
+    // 把文件拷到指定目录
+    private boolean cpRetFileToDir() throws IOException {
+        File source = exportFile;
+        File dest = new File(cfg.getCpRetDir() + exportFile.getName());
+        return TagFileUtils.cpFile(source, dest);
+    }
+
+    private String buildCmd() {
+        String path = cfg.getShellFilePath();
+        String p1 = cfg.getCpRetDir() + exportFile.getName();
+        String p2 = DateTime.now().toString("yyyyMMdd");
+
+        return StrUtil.format("sh {} {} {}", path, p1, p2);
+    }
+
+    private boolean executeShellToHive() {
+        if (!cfg.isExecuteShellFlag()) {
+            log.info("不执行shell命令");
+            return false;
+        }
+        TimeInterval timer = DateUtil.timer();
+
+        String cmd = buildCmd();
+        log.info("[executeShell]file1={},cmd={}", this.exportFile.getPath(), cmd);
+
+        ShellUtils.invokeShell(cmd);
+
+        long interval = timer.interval();
+        log.info("[executeShell]name={},耗时{}ms", exportFile.getName(), interval);
+        return true;
     }
 
     public void export() {

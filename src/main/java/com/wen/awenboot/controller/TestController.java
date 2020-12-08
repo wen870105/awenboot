@@ -11,11 +11,9 @@ import com.wen.awenboot.integration.zhuangku.ResultMusic;
 import com.wen.awenboot.task.InitVideoDay;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -49,13 +47,16 @@ public class TestController {
         return "errorDemo";
     }
 
-    //    @RequestMapping(value = "/header", produces = "application/json;charset=UTF-8")
-    @RequestMapping(value = "/header")
+    @RequestMapping("/video/{phone}")
     @ResponseBody
-    public Object testHeader(@RequestHeader HttpHeaders headers) {
+    public Object index(String phone) {
+//        log.info("phone={}", phone);
         Result ret = new Result();
+//        if (++counter % 1000 == 0) {
         ret.setResultCode("0000");
+////        } else {
 //            ret.setResultCode("0001");
+////        }
         ProductInfo info = new ProductInfo();
         info.setImei("");
         info.setProducts("product1:1.76,p2:2,p3:4");
@@ -99,23 +100,6 @@ public class TestController {
         return "success";
     }
 
-    @RequestMapping("/phone/{phone}")
-    @ResponseBody
-    public Object index(String phone) {
-        log.info("phone={}", phone);
-        Result ret = new Result();
-//        if (++counter % 1000 == 0) {
-        ret.setResultCode("0000");
-////        } else {
-//            ret.setResultCode("0001");
-////        }
-        ProductInfo info = new ProductInfo();
-        info.setImei("");
-        info.setProducts("product1:1.76,p2:2,p3:4");
-        info.setProvId("");
-        ret.setProductInfo(info);
-        return ret;
-    }
 
     @RequestMapping("/taskDay")
     @ResponseBody

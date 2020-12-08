@@ -50,6 +50,12 @@ public class ZhuangkuConfig {
 
     private Map<Integer, Integer> rateLimiterQpsMap;
 
+    private String cpRetDir;
+
+    private boolean executeShellFlag = false;
+
+    private String shellFilePath;
+
     @PostConstruct
     private void init() {
         log.info("ZhuangkuConfig={}", JSON.toJSONString(this));

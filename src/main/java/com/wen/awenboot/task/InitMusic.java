@@ -13,6 +13,7 @@ import com.wen.awenboot.config.ZhuangkuConfig;
 import com.wen.awenboot.integration.zhuangku.ResultMusic;
 import com.wen.awenboot.utils.PaasSecretHandler;
 import com.wen.awenboot.utils.RateLimiterUtils;
+import com.wen.awenboot.utils.TagFileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,6 +109,11 @@ public class InitMusic {
                     exportFile(f, zkfs, limiter, Integer.valueOf(properties[2]));
                 }
             }
+        }
+        try {
+            TagFileUtils.cpBakRetDir(cfg.getCpRetDir());
+        } catch (IOException e) {
+            log.error("", e);
         }
         long end = System.currentTimeMillis();
         log.info("导出完毕,耗时{}ms", end - start);

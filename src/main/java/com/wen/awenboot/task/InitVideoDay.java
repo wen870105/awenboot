@@ -44,7 +44,7 @@ public class InitVideoDay {
     private int currentMinute;
 
 
-    @Scheduled(cron = "10 0 * * * ? ")
+    @Scheduled(cron = "10 0 0 * * ? ")
     public boolean task() {
 //        # video,imei,music
         if ("video".equalsIgnoreCase(cfg.getTaskName())) {
@@ -52,6 +52,7 @@ public class InitVideoDay {
         } else {
             return false;
         }
+
         execute1();
 
         return true;
@@ -70,7 +71,7 @@ public class InitVideoDay {
         RateLimiter limiter = RateLimiter.create(1000);
 
         File f = file;
-        ZhuangkuFileService zkfs = new ZhuangkuFileService(cfg, f.getName() + "_" + DateTime.now().toString("yyyyMMddHHmmss"));
+        ZhuangkuFileService zkfs = new ZhuangkuFileService(cfg, f.getName() + "_" + DateTime.now().toString("yyyyMMddHHss"));
 
         exportFile(f, zkfs, limiter, 0);
 

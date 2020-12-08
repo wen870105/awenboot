@@ -10,6 +10,7 @@ import com.wen.awenboot.common.ThreadPoolThreadFactoryUtil;
 import com.wen.awenboot.config.ZhuangkuConfig;
 import com.wen.awenboot.integration.zhuangku.Result;
 import com.wen.awenboot.utils.RateLimiterUtils;
+import com.wen.awenboot.utils.TagFileUtils;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
@@ -17,8 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -57,7 +58,7 @@ public class Init {
     private int currentMinute;
 
 
-    @PostConstruct
+    //    @PostConstruct
     private void init() {
 //        # video,imei,music
         if ("video".equalsIgnoreCase(cfg.getTaskName())) {
@@ -108,6 +109,12 @@ public class Init {
                     exportFile(f, zkfs, limiter, Integer.valueOf(properties[2]));
                 }
             }
+        }
+
+        try {
+            TagFileUtils.cpBakRetDir(cfg.getCpRetDir());
+        } catch (IOException e) {
+            log.error("", e);
         }
         long end = System.currentTimeMillis();
         log.info("导出完毕,耗时{}ms", end - start);
