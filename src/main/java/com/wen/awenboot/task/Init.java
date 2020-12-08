@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -58,7 +59,7 @@ public class Init {
     private int currentMinute;
 
 
-    //    @PostConstruct
+    @PostConstruct
     private void init() {
 //        # video,imei,music
         if ("video".equalsIgnoreCase(cfg.getTaskName())) {
