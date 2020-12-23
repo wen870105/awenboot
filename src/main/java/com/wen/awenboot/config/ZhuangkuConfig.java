@@ -56,6 +56,8 @@ public class ZhuangkuConfig {
 
     private String shellFilePath;
 
+    private String dtpFilePrefix;
+
     @PostConstruct
     private void init() {
         log.info("ZhuangkuConfig={}", JSON.toJSONString(this));
