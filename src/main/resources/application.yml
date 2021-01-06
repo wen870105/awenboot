@@ -5,11 +5,14 @@ server:
 logback:
   file: d:\\logs\\wen123
 zhuangku:
+  showLog: false
+  secretKey: MFZxY29UNjkxQ204OVgycXh1dDE3Nll1
   executeShellFlag: true
+  dbFile: D:\\wen_test\\total.properties
   shellFilePath: D:\\dir.bat
   # 解析后的文件目录
   cpRetDir: D:\\wen_test\\retDir\\
-  dtpFilePrefix: access-8049-miguhui-pro.log-
+  dtpFilePrefix: dtp_
   includeDataFileList: ["000000_0"]
   # 当次数据导出目录
   dataSourceDir: D:\\wen_test\\data\\
@@ -21,7 +24,7 @@ zhuangku:
   #  targetUrl: http://127.0.0.1:8080/test/phone/
   readFileLimit: 100
   printFlag: 1000
-  taskName: 'brand'
+  taskName: 'gotone'
   readTimeout: 5000
   writeTimeout: 5000
   dayPeriodFile: migu_staff.txt

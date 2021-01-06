@@ -1,6 +1,8 @@
 package com.wen.awenboot.utils;
 
 import cn.hutool.core.util.StrUtil;
+import com.wen.awenboot.common.SpringUtil;
+import com.wen.awenboot.config.ZhuangkuConfig;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -47,21 +49,41 @@ public class BrandLogFileUtil {
     }
 
     public static String trimParam(String str) {
-        log.info("trimParam之前:{}", str);
+        if (showLog()) {
+            log.info("trimParam之前:{}", str);
+        }
         String replace = StrUtil.replace(str, "\\\\", "");
         replace = StrUtil.replace(str, "\\", "");
-        log.info("trimParam之后:{}", replace);
+        if (showLog()) {
+            log.info("trimParam之后:{}", replace);
+        }
         return replace;
+    }
+
+    private static boolean showLog() {
+        try {
+            ZhuangkuConfig cfg = SpringUtil.getBean(ZhuangkuConfig.class);
+            return cfg.isShowLog();
+        } catch (Throwable e) {
+            return true;
+        }
+
+
     }
 
     private static String trimRet(String str) {
-//        log.info("trimRet之前:{}", str);
-        String replace = StrUtil.replace(str, "\"", "");
-//        log.info("trimRet之后:{}", replace);
+        if (showLog()) {
+            log.info("trimRet之前:{}", str);
+        }
+        String replace = StrUtil.replace(str, "\"", "").trim();
+
+        if (showLog()) {
+            log.info("trimRet之后:{}", replace);
+        }
         return replace;
     }
 
-    private static String getVal(String content) {
+    public static String getVal(String content) {
         String requestV = content.trim().split(":")[1];
         return trimRet(requestV);
     }
@@ -82,6 +104,11 @@ public class BrandLogFileUtil {
     }
 
     public static void main(String[] args) {
+        brandTest();
+    }
+
+
+    private static void brandTest() {
         String p = "{\"timestamp\": 12/Nov \"remote_addr\": 10.191.1.11 \"request_body\":\"\\n{\\\"\\head\\\":{\\\"requestRefid\\\":\\\"estetsetsetsetset\\\"},\\\"request\\\":\\\"qqqq22222\\\"} , \\\"responseCode\\\":\\\"0000\\\" \"response_status\": 200 \\\"response_body\\\":\"{\\\"head\\\":{},\\\"response\\\":\\\"rrr2222\" }}";
 //        String p = "{\"timestamp\": 12/Nov \"remote_addr\": 10.191.1.11 \"request_body\":\"\\n{\\\"\\head\\\":{\\\"requestRefid\\\":\\\"estetsetsetsetset\\\"},\\\"request\\\":\\\"seatsaetsett\\\"} \" \"response_status\": 200 \\\"response_body\\\":\"{\\\"head\\\":{},\\\"response\\\":\\\"testset\n" +
 //                "\\\"}\"}";
@@ -89,30 +116,5 @@ public class BrandLogFileUtil {
         String val = getCodeVal(s, "responseCode");
 //        System.out.println("reuqest=" + request);
         System.out.println("reuqestVal=" + val);
-
-//        String response = getContentByKey(s, "response");
-//        String responseV = response.trim().split(":")[1];
-//        System.out.println(response);
-//        System.out.println(responseV);
-//
-//        String response_status = getContent2ByKey(s, "response_status");
-//        String response_statusV = response.trim().split(":")[1];
-//
-//        System.out.println(response_status);
-
-
-//
-//        String inputLine = "alter user mydip identified by \"HqLabcdyX\" account unlock\"test\";";
-//        Pattern r = Pattern.compile(".*identified\\s+by\\s+(\\S+?)($|;|\\s+.+)", Pattern.CASE_INSENSITIVE);
-//        Matcher m = r.matcher(inputLine);
-//        if (!m.matches()) {
-//            throw new IllegalArgumentException("Bad Input");
-//        }
-//
-//        System.out.println(m.groupCount());
-//        // 分组0得到的是整个原字符串
-//        for (int i = 0; i < m.groupCount() + 1; i++) {
-//            System.out.println("分组" + i + ":" + m.group(i));
-//        }
     }
 }

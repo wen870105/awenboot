@@ -12,7 +12,6 @@ import com.wen.awenboot.integration.zhuangku.Result;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -44,7 +43,7 @@ public class InitVideoDay {
     private int currentMinute;
 
 
-    @Scheduled(cron = "10 0 0 * * ? ")
+//    @Scheduled(cron = "10 0 0 * * ? ")
     public boolean task() {
 //        # video,imei,music
         if ("video".equalsIgnoreCase(cfg.getTaskName())) {

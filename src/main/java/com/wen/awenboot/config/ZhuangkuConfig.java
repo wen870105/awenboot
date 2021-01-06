@@ -58,6 +58,10 @@ public class ZhuangkuConfig {
 
     private String dtpFilePrefix;
 
+    private String secretKey;
+
+    private boolean showLog = false;
+
     @PostConstruct
     private void init() {
         log.info("ZhuangkuConfig={}", JSON.toJSONString(this));

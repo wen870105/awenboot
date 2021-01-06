@@ -8,6 +8,8 @@ import com.wen.awenboot.config.ZhuangkuConfig;
 import com.wen.awenboot.integration.zhuangku.ProductInfo;
 import com.wen.awenboot.integration.zhuangku.Result;
 import com.wen.awenboot.integration.zhuangku.ResultMusic;
+import com.wen.awenboot.task.BrandLogTask;
+import com.wen.awenboot.task.GotoneTask;
 import com.wen.awenboot.task.InitVideoDay;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/test")
@@ -29,6 +35,54 @@ public class TestController {
 
     @Autowired
     private InitVideoDay initVideoDay;
+
+    @Autowired
+    private BrandLogTask brandLogTask;
+
+    @Autowired
+    private GotoneTask gotoneTask;
+
+    @Autowired
+    private InitVideoDay mInitVideoDay;
+
+    @RequestMapping("/gotoneList/{date}")
+    @ResponseBody
+    public Object gotoneList2(@PathVariable("date") String date) {
+        File file = new File(cfg.getDataSourceDir() + cfg.getDtpFilePrefix() + date);
+        if (!file.exists()) {
+            log.error("================{}文件不存在", file.getPath());
+            log.error("================{}文件不存在", file.getPath());
+            log.error("================{}文件不存在", file.getPath());
+            return "error";
+        }
+        gotoneTask.execute1(file);
+        return "success";
+    }
+
+    @RequestMapping("/gotone/list")
+    @ResponseBody
+    public Object gotoneList() {
+        log.info("gotoneList start");
+        File dir = new File(cfg.getDataSourceDir());
+        File[] files = dir.listFiles(f -> {
+            return !f.getName().contains("12-13")
+                    && !f.getName().contains("12-14")
+                    && !f.getName().contains("12-15")
+                    && !f.getName().contains("12-16")
+                    && f.getName().endsWith(".log");
+        });
+        log.info("所有的文件list={}", Arrays.stream(files).map(File::getName).collect(Collectors.toList()));
+
+        for (File f : files) {
+            gotoneTask.execute1(f);
+        }
+        log.info("finish gotoneList 1111111111");
+        log.info("finish gotoneList 1111111111");
+        log.info("finish gotoneList 1111111111");
+        log.info("finish gotoneList 1111111111");
+        log.info("finish gotoneList 1111111111");
+        return "success";
+    }
 
     @RequestMapping(value = "/error")
     @ResponseBody
@@ -106,5 +160,27 @@ public class TestController {
     public Object taskDay() {
         return initVideoDay.task();
     }
+
+    @RequestMapping("/taskBrand/{date}")
+    @ResponseBody
+    public Object taskBrand(@PathVariable("date") String date) {
+        File file = new File(cfg.getDataSourceDir() + cfg.getDtpFilePrefix() + date);
+        if (!file.exists()) {
+            log.error("================{}文件不存在", file.getPath());
+            log.error("================{}文件不存在", file.getPath());
+            log.error("================{}文件不存在", file.getPath());
+            return "error";
+        }
+        brandLogTask.execute1(file);
+        return "success";
+    }
+
+    @RequestMapping("/task/videoDay")
+    @ResponseBody
+    public Object mInitVideoDayTask() {
+        mInitVideoDay.task();
+        return "success";
+    }
+
 
 }

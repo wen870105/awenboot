@@ -5,11 +5,11 @@ import lombok.Data;
 /**
  * @author wen
  * @version 1.0
- * @date 2020/12/22 20:57
+ * @date 2021/1/3 2:02
  */
 @Data
-public class PhoneTagKv {
+public class GotoneLogRequest {
+    private String requestRefId;
     private String phone;
-    private String tag;
-    private String tagText;
+    private String secretId;
 }
