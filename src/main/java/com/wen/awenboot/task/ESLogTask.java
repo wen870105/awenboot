@@ -92,7 +92,7 @@ public class ESLogTask {
         BrandFileService zkfs = new BrandFileService(cfg, file.getName());
         long count = ZhuangkuFileService.lineCount(file);
 
-        int limit = 100;
+        int limit = cfg.getReadFileLimit();
         int start = 0;
         while (start < count) {
             List<String> strings = null;
