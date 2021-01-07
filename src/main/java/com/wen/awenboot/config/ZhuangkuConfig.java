@@ -60,7 +60,10 @@ public class ZhuangkuConfig {
 
     private String secretKey;
 
+    private String esKey;
+
     private boolean showLog = false;
+
 
     @PostConstruct
     private void init() {

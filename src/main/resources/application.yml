@@ -4,7 +4,15 @@ server:
 
 logback:
   file: d:\\logs\\wen123
+
+
+es:
+  hosts: 127.0.0.1
+  clusterName: elasticsearch
+  index: migu_wen
+  type: jh
 zhuangku:
+#  esKey: offbehavior_video_60050
   showLog: false
   secretKey: MFZxY29UNjkxQ204OVgycXh1dDE3Nll1
   executeShellFlag: true
@@ -15,7 +23,7 @@ zhuangku:
   dtpFilePrefix: dtp_
   includeDataFileList: ["000000_0"]
   # 当次数据导出目录
-  dataSourceDir: D:\\wen_test\\data\\
+  dataSourceDir: D:\\test1234\\
   exportDir: D:\\wen_test\\export\\
   rateLimiterQps: 100
   #  targetUrl: http://117.128.1.49:7011/recommendService/services/proQuery/102/004050160005/01/
@@ -24,7 +32,7 @@ zhuangku:
   #  targetUrl: http://127.0.0.1:8080/test/phone/
   readFileLimit: 100
   printFlag: 1000
-  taskName: 'gotone'
+  taskName: 'es'
   readTimeout: 5000
   writeTimeout: 5000
   dayPeriodFile: migu_staff.txt
