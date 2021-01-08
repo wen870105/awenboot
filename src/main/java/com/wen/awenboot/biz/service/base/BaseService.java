@@ -4,8 +4,8 @@
  */
 package com.wen.awenboot.biz.service.base;
 
-import com.wen.awenboot.dal.dao.base.BaseDao;
-import com.wen.awenboot.dal.dataobject.base.Page;
+import com.wen.awenboot.domain.base.Page;
+import com.wen.awenboot.utils.BaseMapper;
 
 import java.util.List;
 
@@ -20,23 +20,19 @@ public interface BaseService<T> {
 
     public void add(T t);
 
-    public int deleteByIds(long[] ids);
-
-    public int deleteByCondtion(T t);
-
     public int updateById(T t);
 
     public T selectById(long id);
 
     public T selectOne(T t);
 
+    public int deleteByCondtion(T t);
+
     public List<T> selectList(T t);
 
     public int selectListCount(T t);
 
-    public List<T> selectByIds(long[] ids);
-
-    public BaseDao<T> getDao();
+    public BaseMapper<T> getDao();
 
     public Page<T> selectPage(T condition, Page<T> page);
 }

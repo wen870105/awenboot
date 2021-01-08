@@ -24,6 +24,22 @@
         </encoder>
     </appender>
 
+    <appender name="retFileAppender"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <prudent>true</prudent>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/ret.log.%d{yyyyMMdd}</fileNamePattern>
+            <maxHistory>2</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>[%d{HH:mm:ss.SSS}] [%thread] [%-5level]%logger{30}[%line]: %msg %n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.wen.awenboot.task.RetLogger" additivity="false" level="INFO">
+        <appender-ref ref="retFileAppender"/>
+    </logger>
+
     <root level="INFO">
         <appender-ref ref="rollingFileAppender"/>
         <appender-ref ref="consoleAppender"/>

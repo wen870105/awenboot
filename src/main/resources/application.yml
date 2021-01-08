@@ -5,6 +5,22 @@ server:
 logback:
   file: d:\\logs\\wen123
 
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+    druid:
+      initial-size: 5 #连接池初始化大小
+      min-idle: 10 #最小空闲连接数
+      max-active: 20 #最大连接数
+      web-stat-filter:
+        exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*" #不统计这些请求数据
+      stat-view-servlet: #访问监控网页的登录用户名和密码
+        login-username: druid
+        login-password: druid
 
 es:
   hosts: 127.0.0.1
@@ -12,7 +28,7 @@ es:
   index: migu_wen
   type: jh
 zhuangku:
-#  esKey: offbehavior_video_60050
+  #  esKey: offbehavior_video_60050
   showLog: false
   secretKey: MFZxY29UNjkxQ204OVgycXh1dDE3Nll1
   executeShellFlag: true
@@ -30,7 +46,7 @@ zhuangku:
   # targetUrl: http://127.0.0.1:8080/test/music/
   targetUrl: http://127.0.0.1:8080/test/video/
   #  targetUrl: http://127.0.0.1:8080/test/phone/
-  readFileLimit: 100
+  readFileLimit: 10000
   printFlag: 1000
   taskName: 'es'
   readTimeout: 5000
@@ -38,29 +54,7 @@ zhuangku:
   dayPeriodFile: migu_staff.txt
   rateLimiterQpsMap:
     0: 10
-    1: 10
-    2: 150
-    3: 90
-    4: 90
-    5: 50
-    6: 40
-    7: 30
-    8: 21
-    9: 10
-    10: 50
-    11: 50
-    12: 50
-    13: 50
-    14: 50
-    15: 50
-    16: 50
-    17: 60
-    18: 80
-    19: 25
-    20: 31
-    21: 15
-    22: 30
-    23: 30
+
 
 
 

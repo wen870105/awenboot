@@ -30,4 +30,5 @@ public class EsConfig {
     private void init() {
         log.info(toString());
     }
+
 }

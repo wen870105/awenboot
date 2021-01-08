@@ -7,20 +7,15 @@ import com.wen.awenboot.cache.EsCntSerivce;
 import com.wen.awenboot.common.ReadFilePageUtil;
 import com.wen.awenboot.common.ThreadPoolThreadFactoryUtil;
 import com.wen.awenboot.config.ZhuangkuConfig;
-import com.wen.awenboot.es.EsClient;
 import com.wen.awenboot.utils.RtScopeSerivce;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,7 +43,7 @@ public class ESLogTask {
     private ZhuangkuConfig cfg;
 
     @Autowired
-    private EsClient esClient;
+    private RetLogger retLogger;
 
     private Map<String, Long> rpcMap = new HashMap<>();
 
@@ -82,7 +77,7 @@ public class ESLogTask {
         long start = System.currentTimeMillis();
         exportFile(file);
         long end = System.currentTimeMillis();
-        log.info("导出完毕,耗时{}ms", end - start);
+        retLogger.getLogger().info("导出耗时{}ms,file={},", end - start, file.getName());
     }
 
 
@@ -119,8 +114,8 @@ public class ESLogTask {
             }
             start += limit;
         }
-        log.info("耗时分布={}", rtService.toString());
-        log.info("各种调用总次数={}", cntService.toString());
+        retLogger.getLogger().info("耗时分布={}", rtService.toString());
+        retLogger.getLogger().info("各种调用总次数={}", cntService.toString());
 
     }
 
@@ -145,25 +140,26 @@ public class ESLogTask {
 
 
     private long getEsRet(String esKey, String tag) {
-        try {
-            return getKeyWord(esKey, tag);
-        } catch (IOException e) {
-            log.error("", e);
-            return 0;
-        }
+//        try {
+//            return getKeyWord(esKey, tag);
+//        } catch (IOException e) {
+//            log.error("", e);
+//            return 0;
+//        }
+        return 0;
     }
 
-    // 关键字查询
-    public long getKeyWord(String name, String val) throws IOException {
-        SearchRequestBuilder searchRequestBuilder = esClient.build()
-//                .setQuery(QueryBuilders.wildcardQuery(name, "*" + val.trim() + "*"))
-                .setQuery(QueryBuilders.matchPhraseQuery(name.trim(), val.trim()))
-                .setSize(0);
-        SearchResponse searchResponse = searchRequestBuilder.get();
-
-        // 获取命中次数，查询结果有多少对象
-        return searchResponse.getHits().getTotalHits();
-    }
+//    // 关键字查询
+//    public long getKeyWord(String name, String val) throws IOException {
+//        SearchRequestBuilder searchRequestBuilder = esClient.build()
+////                .setQuery(QueryBuilders.wildcardQuery(name, "*" + val.trim() + "*"))
+//                .setQuery(QueryBuilders.matchPhraseQuery(name.trim(), val.trim()))
+//                .setSize(0);
+//        SearchResponse searchResponse = searchRequestBuilder.get();
+//
+//        // 获取命中次数，查询结果有多少对象
+//        return searchResponse.getHits().getTotalHits();
+//    }
 
     private void getResult(String esKey, Kvs kvs, RtScopeSerivce rtService, EsCntSerivce cntService) {
         List<String> tags = kvs.getTags();
