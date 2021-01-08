@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+		
+	@author Wen
+ 	@since 2021-01-08 
+-->
+<mapper namespace="com.wen.awenboot.dao.ColumnValueMapBakDao">
+
+    <resultMap id="ColumnValueMapBak-Map" type="com.wen.awenboot.domain.ColumnValueMapBak">
+        <result property="id" column="id"/>
+        <result property="columnNum" column="column_num"/>
+        <result property="stringVal" column="string_val"/>
+        <result property="createTime" column="create_time"/>
+        <result property="modifyTime" column="modify_time"/>
+    </resultMap>
+
+
+    <select id="selectPageList" parameterType="com.wen.awenboot.domain.ColumnValueMapBak"
+            resultMap="ColumnValueMapBak-Map">
+        <include refid="selectPageSql"/>
+        limit #{startIndex},#{offset}
+    </select>
+
+    <select id="selectPageCount" parameterType="com.wen.awenboot.domain.ColumnValueMapBak" resultType="int">
+        select count(1) from (<include refid="selectPageSql"/>) as tmp
+    </select>
+
+    <sql id="selectPageSql">
+        SELECT * FROM migu_tag_info
+        WHERE 1=1
+        <if test="columnNum != null and columnNum != '' ">and column_num like concat('%', #{columnNum}, '%')</if>
+    </sql>
+
+
+</mapper>

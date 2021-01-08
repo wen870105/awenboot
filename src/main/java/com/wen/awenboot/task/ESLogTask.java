@@ -7,6 +7,9 @@ import com.wen.awenboot.cache.EsCntSerivce;
 import com.wen.awenboot.common.ReadFilePageUtil;
 import com.wen.awenboot.common.ThreadPoolThreadFactoryUtil;
 import com.wen.awenboot.config.ZhuangkuConfig;
+import com.wen.awenboot.domain.ColumnValueMapBak;
+import com.wen.awenboot.msg.TagLogEventSender;
+import com.wen.awenboot.service.ColumnValueMapBakServiceImpl;
 import com.wen.awenboot.utils.RtScopeSerivce;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,8 +53,12 @@ public class ESLogTask {
 
     private static final byte[] SPLIT = {0x01};
 
-    // 当前时间的分钟数,用来调整流控速率
-    private int currentMinute;
+    @Resource
+    private TagLogEventSender sender;
+
+
+    @Autowired
+    private ColumnValueMapBakServiceImpl service;
 
     @PostConstruct
     private void init() {
@@ -140,26 +148,9 @@ public class ESLogTask {
 
 
     private long getEsRet(String esKey, String tag) {
-//        try {
-//            return getKeyWord(esKey, tag);
-//        } catch (IOException e) {
-//            log.error("", e);
-//            return 0;
-//        }
         return 0;
     }
 
-//    // 关键字查询
-//    public long getKeyWord(String name, String val) throws IOException {
-//        SearchRequestBuilder searchRequestBuilder = esClient.build()
-////                .setQuery(QueryBuilders.wildcardQuery(name, "*" + val.trim() + "*"))
-//                .setQuery(QueryBuilders.matchPhraseQuery(name.trim(), val.trim()))
-//                .setSize(0);
-//        SearchResponse searchResponse = searchRequestBuilder.get();
-//
-//        // 获取命中次数，查询结果有多少对象
-//        return searchResponse.getHits().getTotalHits();
-//    }
 
     private void getResult(String esKey, Kvs kvs, RtScopeSerivce rtService, EsCntSerivce cntService) {
         List<String> tags = kvs.getTags();
@@ -177,7 +168,12 @@ public class ESLogTask {
                         long esRet = getEsRet(esKey, p);
                         rpcMap.put(mapKey, esRet);
                         long interval = ti.interval();
-                        log.info("es耗时{}ms,count={},esKey={},key={} ,phone={}", interval, esRet, esKey, p, kvs.getPhone());
+                        ColumnValueMapBak obj = new ColumnValueMapBak();
+                        obj.setColumnNum(esKey);
+                        obj.setStringVal(p);
+                        service.saveOrUpdateById(obj);
+//                        sender.send(esKey, p);
+//                        log.info("es耗时{}ms,count={},esKey={},key={} ,phone={}", interval, esRet, esKey, p, kvs.getPhone());
                         rtService.addVal(interval);
                         cntService.addRpcCounter();
                     }

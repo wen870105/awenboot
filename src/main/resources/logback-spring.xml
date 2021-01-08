@@ -40,6 +40,8 @@
         <appender-ref ref="retFileAppender"/>
     </logger>
 
+
+<!--    <logger name="com.wen.awenboot.dao" level="DEBUG" />-->
     <root level="INFO">
         <appender-ref ref="rollingFileAppender"/>
         <appender-ref ref="consoleAppender"/>
