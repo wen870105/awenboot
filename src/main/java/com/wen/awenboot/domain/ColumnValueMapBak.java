@@ -24,6 +24,6 @@ public class ColumnValueMapBak extends BaseDomain {
     private String stringVal;
     private Date createTime;
     //
-    private Date modifyTime;
+    private Date updateTime;
 
 }

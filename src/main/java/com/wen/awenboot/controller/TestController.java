@@ -1,6 +1,9 @@
 package com.wen.awenboot.controller;
 
 import cn.hutool.core.date.TimeInterval;
+import com.alibaba.fastjson.JSON;
+import com.wen.awenboot.domain.ColumnValueMapBak;
+import com.wen.awenboot.domain.base.Page;
 import com.wen.awenboot.service.ColumnValueMapBakServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +32,9 @@ public class TestController {
     @ResponseBody
     public Object query(@RequestBody QueryRequest query) {
         TimeInterval ti = new TimeInterval();
-
+        Page<ColumnValueMapBak> ret = service.query(query);
         log.info("耗时=" + ti.interval() + "ms");
-        return "耗时=" + ti.interval() + "ms";
+        return JSON.toJSONString(ret);
     }
 
 

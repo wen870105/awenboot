@@ -6,14 +6,14 @@
 	@author Wen
  	@since 2021-01-08 
 -->
-<mapper namespace="com.wen.awenboot.dao.ColumnValueMapBakDao">
+<mapper namespace="com.wen.awenboot.dao.ColumnValueMapBakMapper">
 
     <resultMap id="ColumnValueMapBak-Map" type="com.wen.awenboot.domain.ColumnValueMapBak">
         <result property="id" column="id"/>
         <result property="columnNum" column="column_num"/>
         <result property="stringVal" column="string_val"/>
         <result property="createTime" column="create_time"/>
-        <result property="modifyTime" column="modify_time"/>
+        <result property="updateTime" column="update_time"/>
     </resultMap>
 
 
@@ -28,9 +28,9 @@
     </select>
 
     <sql id="selectPageSql">
-        SELECT * FROM migu_tag_info
+        SELECT * FROM column_value_map_bak
         WHERE 1=1
-        <if test="columnNum != null and columnNum != '' ">and column_num like concat('%', #{columnNum}, '%')</if>
+        <if test="stringVal != null and stringVal != '' ">and string_val like concat('%', #{stringVal}, '%')</if>
     </sql>
 
 

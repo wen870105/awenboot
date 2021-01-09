@@ -8,7 +8,7 @@ package com.wen.awenboot.utils;
 public class RtScopeUtils {
 
     public static String getRtScope(long time) {
-        if (time > 0 && time <= 100) {
+        if (time >= 0 && time <= 100) {
             return "0-100ms";
         }
         if (time > 100 && time <= 200) {

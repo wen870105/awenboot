@@ -1,12 +1,13 @@
 package com.wen.awenboot.task;
 
-import com.wen.awenboot.common.ThreadPoolThreadFactoryUtil;
+import cn.hutool.core.date.TimeInterval;
+import cn.hutool.core.util.RandomUtil;
+import com.wen.awenboot.cache.EsCntSerivce;
+import com.wen.awenboot.utils.RtScopeSerivce;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author wen
@@ -17,31 +18,32 @@ import java.util.concurrent.TimeUnit;
 public class TTT {
 
     public static void main(String[] args) {
-        ExecutorService executor = new ThreadPoolExecutor(5, 5, 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(2),
-                ThreadPoolThreadFactoryUtil.nameThreadFactory("okhttp-pool"), new ThreadPoolExecutor.CallerRunsPolicy());
-        for (int i = 0; i < 10; i++) {
-            executor.execute(() -> {
-                log.info("ha");
-                try {
-                    TimeUnit.SECONDS.sleep(5);
-                } catch (InterruptedException e) {
-                    log.error("", e);
-                }
-            });
-        }
+        TimeInterval ret = new TimeInterval();
+        RetLogger logger = new RetLogger();
+        EsCntSerivce cntService = new EsCntSerivce();
+        Map<String, String> rpcMap = new HashMap<>();
+        RtScopeSerivce rtService = new RtScopeSerivce();
+        int length = 90000000;
+//        int length = 60000;
+        for (int i = 0; i < length; i++) {
+            String s = Integer.toString(RandomUtil.randomInt(0, 10000000));
+            String val = rpcMap.get(s);
+//            cntService.addEnumCounter();
+//            String s = Integer.toString(RandomUtil.randomInt(0, 10000000));
+//            String val = rpcMap.get(s);
+//            String val = "";
+//            if (val == null) {
+//            TimeInterval ti = new TimeInterval();
+//                rpcMap.put(s, s);
+//            long interval = ti.interval();
+            log.info("es耗时{}ms,count={},esKey={},key={} ,phone={}", 0);
+//            rtService.addVal(interval);
+//            cntService.addRpcCounter();
 
-//        try {
-//            log.info("wait");
-//            TimeUnit.SECONDS.sleep(30);
-//        } catch (InterruptedException e) {
-//            log.error("", e);
-//        }
-        log.info("end");
-        try {
-            log.info("wait");
-            TimeUnit.SECONDS.sleep(30);
-        } catch (InterruptedException e) {
-            log.error("", e);
+//            }
         }
+        logger.getLogger().info("耗时分布={}", rtService.toString());
+        logger.getLogger().info("各种调用总次数={}", cntService.toString());
+        logger.getLogger().info("耗时={}ms", ret.interval());
     }
 }

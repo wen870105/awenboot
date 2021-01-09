@@ -36,9 +36,6 @@ public class BaseQuery implements Serializable {
     @Transient
     private Map<String, Object> queryData;
 
-    public Integer getStartIndex() {
-        return startIndex;
-    }
 
     public void setStartIndex(Integer startIndex) {
         this.startIndex = startIndex;
@@ -92,6 +89,13 @@ public class BaseQuery implements Serializable {
 
     public void setPageIndex(Integer pageIndex) {
         this.pageIndex = pageIndex;
+    }
+
+    public Integer getStartIndex() {
+        if (getPageIndex() == null || this.offset == null) {
+            return null;
+        }
+        return (getPageIndex() - 1) * this.offset;
     }
 
 }

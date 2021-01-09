@@ -11,6 +11,6 @@ import lombok.Data;
 public class QueryRequest {
     private String name;
 
-    private Integer offset;
-    private Integer pageIndex;
+    private Integer offset=50;
+    private Integer pageIndex=1;
 }
