@@ -8,7 +8,7 @@
 -->
 <mapper namespace="com.migu.tsg.damportal.dao.MiguTagDetailCntDao">
 	
-	<resultMap id="MiguTagDetailCnt-Map" type="com.migu.tsg.damportal.domain.MiguTagDetailCnt">
+	<resultMap id="MiguTagDetailCnt-Map" type="com.migu.tsg.damportal.com.wen.awenboot.domain.MiguTagDetailCnt">
 		<result property="id" column="id"/>
 		<result property="tagCode" column="tag_code"/>
 		<result property="tagCnt" column="tag_cnt"/>

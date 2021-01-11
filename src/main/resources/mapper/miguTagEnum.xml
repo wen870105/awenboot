@@ -8,7 +8,7 @@
 -->
 <mapper namespace="com.migu.tsg.damportal.dao.MiguTagEnumDao">
 	
-	<resultMap id="MiguTagEnum-Map" type="com.migu.tsg.damportal.domain.MiguTagEnum">
+	<resultMap id="MiguTagEnum-Map" type="com.migu.tsg.damportal.com.wen.awenboot.domain.MiguTagEnum">
 		<result property="id" column="id"/>
 		<result property="enumId" column="enum_id"/>
 		<result property="enumName" column="enum_name"/>
