@@ -6,10 +6,12 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.util.concurrent.RateLimiter;
 import com.wen.awenboot.biz.service.ResolverFileService;
 import com.wen.awenboot.biz.service.ZhuangkuFileService;
+import com.wen.awenboot.cache.TagDetailCntCache;
 import com.wen.awenboot.common.OkHttpUtil;
 import com.wen.awenboot.common.ReadFilePageUtil;
 import com.wen.awenboot.common.ThreadPoolThreadFactoryUtil;
 import com.wen.awenboot.config.ZhuangkuConfig;
+import com.wen.awenboot.enums.ApiDetailCntEnum;
 import com.wen.awenboot.integration.zhuangku.ResultMusic;
 import com.wen.awenboot.utils.PaasSecretHandler;
 import com.wen.awenboot.utils.RateLimiterUtils;
@@ -135,7 +137,7 @@ public class InitMusic {
             List<String> strings = null;
             try {
                 refreshLimitRateIfNeed(limiter);
-                log.info("读取文件,流控速率={},start={},limit={},printCount={},name={}", (int) limiter.getRate(), start, limit, printCount, file.getPath());
+                log.info("读取文件,流控速率={},start={},limit={},lineCount={},printCount={},name={}", (int) limiter.getRate(), start, limit, count, printCount, file.getPath());
                 strings = ReadFilePageUtil.readListPage(file.getPath(), start, limit);
             } catch (Exception e) {
                 log.error("读取数据文件异常,path={}", file.getPath(), e);
@@ -151,6 +153,7 @@ public class InitMusic {
                         executor.execute(() -> {
                             String resp = null;
                             try {
+                                TagDetailCntCache.getInstance().incrementAndGet(ApiDetailCntEnum.MUSIC.getCode());
                                 resp = getResult(phone);
                                 if (StrUtil.isBlank(resp)) {
                                     return;

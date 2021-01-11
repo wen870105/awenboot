@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration scan="true" scanPeriod="60 seconds" debug="false">
 
-<!--    <property name="log.root" value="d:\\logs\\awenboot"/>-->
+    <!--    <property name="log.root" value="d:\\logs\\awenboot"/>-->
 
     <springProperty scope="context" name="LOG_PATH" source="logback.file"/>
 
@@ -24,6 +24,7 @@
         </encoder>
     </appender>
 
+<!--    <logger name="com.wen.awenboot.dao" level="DEBUG"/>-->
     <root level="INFO">
         <appender-ref ref="rollingFileAppender"/>
         <appender-ref ref="consoleAppender"/>

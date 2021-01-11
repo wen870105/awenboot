@@ -40,6 +40,8 @@ public class ZhuangkuConfig {
 
     private int connectTimeout = 10000;
 
+    private long imeiCount = 5000000L;
+
     private String taskName;
 
     private String dayPeriodFile;

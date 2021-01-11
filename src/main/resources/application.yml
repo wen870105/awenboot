@@ -4,7 +4,21 @@ server:
 
 logback:
   file: d:\\logs\\wen123
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+
+mybatis:
+  typeAliasesPackage: com.wen.awenboot.domain
+  mapper-locations:
+    - classpath:mapper/*.xml
+
 zhuangku:
+  imeiCount: 5000000
   showLog: false
   secretKey: MFZxY29UNjkxQ204OVgycXh1dDE3Nll1
   executeShellFlag: true
@@ -18,42 +32,14 @@ zhuangku:
   dataSourceDir: D:\\wen_test\\data\\
   exportDir: D:\\wen_test\\export\\
   rateLimiterQps: 100
-  #  targetUrl: http://117.128.1.49:7011/recommendService/services/proQuery/102/004050160005/01/
   # targetUrl: http://127.0.0.1:8080/test/music/
   targetUrl: http://127.0.0.1:8080/test/video/
   #  targetUrl: http://127.0.0.1:8080/test/phone/
   readFileLimit: 100
   printFlag: 1000
-  taskName: 'gotone'
+  taskName: 'video'
   readTimeout: 5000
   writeTimeout: 5000
   dayPeriodFile: migu_staff.txt
   rateLimiterQpsMap:
     0: 10
-    1: 10
-    2: 150
-    3: 90
-    4: 90
-    5: 50
-    6: 40
-    7: 30
-    8: 21
-    9: 10
-    10: 50
-    11: 50
-    12: 50
-    13: 50
-    14: 50
-    15: 50
-    16: 50
-    17: 60
-    18: 80
-    19: 25
-    20: 31
-    21: 15
-    22: 30
-    23: 30
-
-
-
-

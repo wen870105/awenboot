@@ -28,14 +28,40 @@ public class TagFileUtils {
         String f1 = "D:\\test";
         String f2 = "D:\\test4";
         try {
-            cpDir(new File(f1), new File(f2));
+            cpDir2(new File(f1), new File(f2));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+
     public static boolean cpBakRetDir(String path) throws IOException {
-        return cpDir(new File(path), new File(path + "/" + DateTime.now().toString("yyyyMMdd")));
+        return cpDir2(new File(path), new File(path + "/" + DateTime.now().toString("yyyyMMdd")));
+    }
+
+    public static boolean cpDir2(File dir, File destDir) throws IOException {
+        boolean flag = false;
+
+        if (dir.exists()) {
+            if (!destDir.exists()) {
+                File[] files = dir.listFiles((dir1, name) -> name.endsWith(".txt"));
+                if (files != null) {
+                    destDir.mkdirs();
+                    String nP = null;
+                    for (File f : files) {
+                        nP = destDir.getPath() + "/" + f.getName();
+                        f.renameTo(new File(nP));
+                    }
+                    flag = true;
+                }
+            } else {
+                log.info("dest文件目录已存在,不拷贝数据", destDir.getPath());
+            }
+        } else {
+            log.info("dir文件目录存在,{}", dir.getPath());
+        }
+        log.info("拷贝目录完成flag={},src={},dest={}", flag, dir.getPath(), destDir.getPath());
+        return true;
     }
 
     public static boolean cpDir(File dir, File destDir) throws IOException {

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+	api接口调用次数表	
+	@author Wen
+ 	@since 2021-01-08 
+-->
+<mapper namespace="com.wen.awenboot.dao.MiguTagApiDetailCntMapper">
+	
+	<resultMap id="MiguTagApiDetailCnt-Map" type="com.wen.awenboot.domain.MiguTagApiDetailCnt">
+		<result property="id" column="id"/>
+		<result property="tagKey" column="tag_key"/>
+		<result property="cnt" column="cnt"/>
+		<result property="createDate" column="create_date"/>
+	</resultMap>
+
+
+	<update id="updateIncrementCntById" parameterType="com.wen.awenboot.domain.MiguTagApiDetailCnt">
+		update migu_tag_api_detail_cnt
+			set cnt = cnt + ${cnt}
+			where id = ${id}
+	</update>
+
+	
+	
+	
+</mapper>

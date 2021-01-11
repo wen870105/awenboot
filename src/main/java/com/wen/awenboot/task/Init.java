@@ -4,10 +4,12 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.util.concurrent.RateLimiter;
 import com.wen.awenboot.biz.service.ResolverFileService;
 import com.wen.awenboot.biz.service.ZhuangkuFileService;
+import com.wen.awenboot.cache.TagDetailCntCache;
 import com.wen.awenboot.common.OkHttpUtil;
 import com.wen.awenboot.common.ReadFilePageUtil;
 import com.wen.awenboot.common.ThreadPoolThreadFactoryUtil;
 import com.wen.awenboot.config.ZhuangkuConfig;
+import com.wen.awenboot.enums.ApiDetailCntEnum;
 import com.wen.awenboot.integration.zhuangku.Result;
 import com.wen.awenboot.utils.RateLimiterUtils;
 import com.wen.awenboot.utils.TagFileUtils;
@@ -40,7 +42,6 @@ import java.util.stream.Collectors;
 public class Init {
     private static ExecutorService executor = new ThreadPoolExecutor(32, 32, 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(1024),
             ThreadPoolThreadFactoryUtil.nameThreadFactory("okhttp-pool"), new ThreadPoolExecutor.CallerRunsPolicy());
-
 
     @Autowired
     private OkHttpUtil client;
@@ -137,7 +138,7 @@ public class Init {
             List<String> strings = null;
             try {
                 refreshLimitRateIfNeed(limiter);
-                log.info("开始读取文件,流控速率={},start={},limit={},printCount={},name={}", (int) limiter.getRate(), start, limit, printCount, file.getPath());
+                log.info("开始读取文件,流控速率={},start={},limit={},lineCount={},printCount={},name={}", (int) limiter.getRate(), start, limit, count, printCount, file.getPath());
                 strings = ReadFilePageUtil.readListPage(file.getPath(), start, limit);
             } catch (Exception e) {
                 log.error("读取数据文件异常,path={}", file.getPath(), e);
@@ -152,6 +153,7 @@ public class Init {
                         limiter.acquire();
                         executor.execute(() -> {
                             try {
+                                TagDetailCntCache.getInstance().incrementAndGet(ApiDetailCntEnum.VIDEO.getCode());
                                 Result result = getResult(phone);
                                 wirteData(phone, result, zkfs);
                             } catch (Throwable e) {
@@ -224,5 +226,7 @@ public class Init {
 
         return result;
     }
+
+
 }
 

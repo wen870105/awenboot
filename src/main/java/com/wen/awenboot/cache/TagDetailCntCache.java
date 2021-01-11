@@ -7,10 +7,13 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.wen.awenboot.converter.CntBeanConverter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.wen.awenboot.domain.MiguTagApiDetailCnt;
+import com.wen.awenboot.service.MiguTagApiDetailCntServiceImpl;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Date;
@@ -27,21 +30,33 @@ import java.util.concurrent.atomic.AtomicLong;
  * @date 2020/10/23 10:09
  */
 @Service
+@Slf4j
 public class TagDetailCntCache {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TagDetailCntCache.class);
 
     private LoadingCache<String, CntBean> cache;
 
     private static final int MAXIMUM_SIZE = 500;
 
-    // 通过switchCache每日更新
-    private Date cacheDate = DateTime.now();
-
+    private Date cacheDate = new Date();
     @Resource
     private CntBeanConverter converter;
 
+    @Autowired
+    private MiguTagApiDetailCntServiceImpl service;
+
     public TagDetailCntCache() {
         cache = buildCache();
+    }
+
+    private static TagDetailCntCache instance;
+
+    public static TagDetailCntCache getInstance() {
+        return instance;
+    }
+
+    @PostConstruct
+    public void init() {
+        instance = this;
     }
 
     public long incrementAndGet(String key) {
@@ -49,7 +64,7 @@ public class TagDetailCntCache {
         try {
             obj = cache.get(key);
         } catch (ExecutionException e) {
-            LOGGER.error("获取缓存异常", e);
+            log.error("获取缓存异常", e);
         }
         obj.setUpdateDate(new Date());
         return obj.getVal().incrementAndGet();
@@ -57,9 +72,8 @@ public class TagDetailCntCache {
 
     public void refreshCache() {
         DateTime now = DateTime.now();
-        LOGGER.info("每日切换新的缓存当前日期是{}", now.toString("yyyyMMdd"));
+        log.info("每日切换新的缓存当前日期是{}", now.toString("yyyyMMdd"));
         ConcurrentMap<String, CntBean> oldMap = cache.asMap();
-        cacheDate = now;
         cache = buildCache();
         upateToDb(oldMap);
     }
@@ -75,28 +89,39 @@ public class TagDetailCntCache {
         AtomicInteger counter = new AtomicInteger();
         Date date = new Date();
         map.forEach((k, val) -> {
-            if (val.getVal().longValue() > 0) {
+            if (val.getVal().longValue() > 0L) {
                 CntBean newObj = converter.clone(val);
                 newObj.setVal(new AtomicLong(0L));
                 cache.put(k, newObj);
 
-                detailCntService.updateIncrementCntById(0);
+                updateCnt(val);
                 counter.getAndIncrement();
             }
         });
         return counter.intValue();
     }
 
+    private void updateCnt(CntBean val) {
+        MiguTagApiDetailCnt cnt = new MiguTagApiDetailCnt();
+        cnt.setCnt(val.getVal().longValue());
+        cnt.setTagKey(val.getKey());
+        cnt.setCreateDate(new java.sql.Date(val.getUpdateDate().getTime()));
+        service.updateIncrementCntById(cnt);
+    }
+
     public int upateToDb(Map<String, CntBean> map) {
         AtomicInteger counter = new AtomicInteger();
         List<CntBean> list = new ArrayList<>();
-        Date date = new Date();
         map.forEach((k, val) -> {
-            list.add(val);
-            counter.getAndIncrement();
+            if (val.getVal().longValue() > 0L) {
+                list.add(val);
+                counter.getAndIncrement();
+            }
         });
         if (CollUtil.isNotEmpty(list)) {
-            detailCntService.updateDetailCnt(list);
+            for (CntBean cnt : list) {
+                updateCnt(cnt);
+            }
         }
         return counter.intValue();
     }

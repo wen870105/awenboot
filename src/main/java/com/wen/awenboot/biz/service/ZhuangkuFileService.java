@@ -82,8 +82,8 @@ public class ZhuangkuFileService {
         tempFile = newTempFile;
 
         tempFilePps = new Properties();
-        try {
-            tempFilePps.load(new FileInputStream(tempFile));
+        try (FileInputStream fileInputStream = new FileInputStream(tempFile)) {
+            tempFilePps.load(fileInputStream);
         } catch (IOException e) {
             log.error("", e);
         }

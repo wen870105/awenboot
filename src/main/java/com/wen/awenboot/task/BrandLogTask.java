@@ -5,8 +5,10 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.wen.awenboot.biz.service.BrandFileService;
 import com.wen.awenboot.biz.service.ZhuangkuFileService;
+import com.wen.awenboot.cache.TagDetailCntCache;
 import com.wen.awenboot.common.ReadFilePageUtil;
 import com.wen.awenboot.config.ZhuangkuConfig;
+import com.wen.awenboot.enums.ApiDetailCntEnum;
 import com.wen.awenboot.integration.log.BrandRequest;
 import com.wen.awenboot.integration.log.BrandResponse;
 import com.wen.awenboot.integration.log.PhoneTagKv;
@@ -72,12 +74,12 @@ public class BrandLogTask {
         }
         long count = ZhuangkuFileService.lineCount(file);
 
-        int limit = 100;
+        int limit = cfg.getReadFileLimit();
         int start = 0;
         while (start < count) {
             List<String> strings = null;
             try {
-                log.info("读取文件,start={},limit={},name={}", start, limit, file.getPath());
+                log.info("读取文件,start={},limit={},lineCount={},name={}", start, limit, count, file.getPath());
                 strings = ReadFilePageUtil.readListPage(file.getPath(), start, limit);
             } catch (Exception e) {
                 log.error("读取数据文件异常,path={}", file.getPath(), e);
@@ -86,6 +88,7 @@ public class BrandLogTask {
             if (strings != null && strings.size() > 0) {
                 for (String logStr : strings) {
                     try {
+                        TagDetailCntCache.getInstance().incrementAndGet(ApiDetailCntEnum.BRAND.getCode());
                         PhoneTagKv resp = getResult(logStr);
                         if (resp == null) {
                             continue;

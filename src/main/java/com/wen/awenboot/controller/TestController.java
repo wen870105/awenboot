@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.wen.awenboot.biz.service.ResolverFileService;
+import com.wen.awenboot.cache.TagDetailCntCache;
 import com.wen.awenboot.config.ZhuangkuConfig;
+import com.wen.awenboot.enums.ApiDetailCntEnum;
 import com.wen.awenboot.integration.zhuangku.ProductInfo;
 import com.wen.awenboot.integration.zhuangku.Result;
 import com.wen.awenboot.integration.zhuangku.ResultMusic;
@@ -29,6 +31,8 @@ import java.util.stream.Collectors;
 public class TestController {
 
     @Autowired
+    private TagDetailCntCache cntCache;
+    @Autowired
     private ZhuangkuConfig cfg;
 
     private static int counter = 333;
@@ -44,6 +48,16 @@ public class TestController {
 
     @Autowired
     private InitVideoDay mInitVideoDay;
+
+    @RequestMapping("/addCache/{key}")
+    @ResponseBody
+    public Object addCache(@PathVariable("key") String key) {
+        final ApiDetailCntEnum enumByCode = ApiDetailCntEnum.getEnumByCode(key);
+        if (enumByCode == null) {
+            return "fault";
+        }
+        return cntCache.incrementAndGet(enumByCode.getCode());
+    }
 
     @RequestMapping("/gotoneList/{date}")
     @ResponseBody

@@ -4,53 +4,30 @@
 package com.wen.awenboot.domain;
 
 import com.wen.awenboot.domain.base.BaseDomain;
+import lombok.Data;
 
-import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.Id;
+import java.sql.Date;
 
 /**
  * api接口调用次数表
+ *
  * @author Wen
  * @since 2021-01-08
  */
+@Data
 public class MiguTagApiDetailCnt extends BaseDomain {
-	// 
-	private Long id;
-	// api名称
-	private String tagKey;
-	// 调用次数
-	private Long cnt;
-	// 日期
-	private Date createDate;
+    //
+    @Id
+    private Long id;
+    // api名称
+    private String tagKey;
+    // 调用次数
+    private Long cnt;
+    // 日期
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    @Column(name = "create_date")
+    private Date createDate;
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setTagKey(String tagKey) {
-		this.tagKey = tagKey;
-	}
-
-	public String getTagKey() {
-		return tagKey;
-	}
-
-	public void setCnt(Long cnt) {
-		this.cnt = cnt;
-	}
-
-	public Long getCnt() {
-		return cnt;
-	}
-
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
-	}
-
-	public Date getCreateDate() {
-		return createDate;
-	}
 }
