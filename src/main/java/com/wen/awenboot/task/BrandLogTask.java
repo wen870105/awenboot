@@ -68,10 +68,6 @@ public class BrandLogTask {
     private void exportFile(File file) {
 
         BrandFileService zkfs = new BrandFileService(cfg, file.getName());
-        if (zkfs.getFile().exists()) {
-            log.info("{}导出文件已经存在跳过", zkfs.getFile().getPath());
-            return;
-        }
         long count = ZhuangkuFileService.lineCount(file);
 
         int limit = cfg.getReadFileLimit();
