@@ -8,6 +8,8 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.LinkedList;
+
 /**
  * @author wen
  * @version 1.0
@@ -24,5 +26,15 @@ public class SpringConfig {
     @Bean
     public RestTemplate restTemplate() {
         return builder.build();
+    }
+
+    /**
+     * 存正在解析的文件名称
+     *
+     * @return
+     */
+    @Bean
+    public LinkedList<String> getExportFileList() {
+        return new LinkedList<String>();
     }
 }

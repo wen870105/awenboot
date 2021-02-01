@@ -35,10 +35,11 @@ public class SM4Util {
     }
 
     public static void main(String[] args) throws Exception {
-        gotone();
+//        gotone();
+        brand();
     }
 
-    public static void brand(String[] args) throws Exception {
+    public static void brand() throws Exception {
         String str = "f79b0cf918651266d33655d2b4d5e7b7dd6dfdcb956db59921a64b0565f1e2e7";
         String str1 = "aecaaf9fb6c99dda7f22083877abc6cb2e439e621119a6e22db9f3a8e9f306fa8426809e8e12535fba9cbb8ee6a0cedd0ca2bf79f1075f931c63110646b4baaa717be3bf5aebf2f8e0d7c9c698b30c0c";
 

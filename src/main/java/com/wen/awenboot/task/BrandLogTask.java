@@ -20,7 +20,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * brand日志接口采集
@@ -38,7 +40,12 @@ public class BrandLogTask {
     // 当前时间的分钟数,用来调整流控速率
     private int currentMinute;
 
-    private static String secretKey = "MFZxY29UNjkxQ204OVgycXh1dDE3Nll1";
+    private Map<String, String> map = new HashMap<String, String>() {{
+        // 数媒访问：
+        put("10202", "b2t3MlhlU3FkTWxmcXZpMGwySkNkcEVq");
+        // 音乐访问：
+        put("10118", "MFZxY29UNjkxQ204OVgycXh1dDE3Nll1");
+    }};
 
     @Scheduled(cron = "0 0 7 * * ? ")
     private void init() {
@@ -144,11 +151,13 @@ public class BrandLogTask {
                 || !"0000".equalsIgnoreCase(responseCode)) {
             return null;
         }
+        String secretId = BrandLogFileUtil.getVal(trimLog, "secretId");
 
+        String secretKey = map.getOrDefault(secretId, "MFZxY29UNjkxQ204OVgycXh1dDE3Nll1");
         try {
             String requestDec = SM4Util.decode(request, secretKey);
             String responseDec = SM4Util.decode(response, secretKey);
-            log.info("解密过后request={},resp={}", requestDec, responseDec);
+//            log.info("解密过后request={},resp={}", requestDec, responseDec);
             BrandRequest brandRequest = JSON.parseObject(requestDec, BrandRequest.class);
             BrandResponse brandResponse = JSON.parseObject(responseDec, BrandResponse.class);
             PhoneTagKv kv = new PhoneTagKv();

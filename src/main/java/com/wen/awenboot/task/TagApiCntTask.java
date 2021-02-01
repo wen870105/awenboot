@@ -1,7 +1,6 @@
 package com.wen.awenboot.task;
 
 import com.wen.awenboot.cache.TagDetailCntCache;
-import com.wen.awenboot.service.MiguTagApiDetailCntServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,13 +18,9 @@ import javax.annotation.PreDestroy;
 public class TagApiCntTask {
 
     @Autowired
-    private MiguTagApiDetailCntServiceImpl service;
-
-    @Autowired
     private TagDetailCntCache cntCache;
 
     @Scheduled(cron = "*/5 * * * * ? ")
-//    @Scheduled(cron = "0 */5 * * * ? ")
     public void task5Min() {
         cntCache.taskUpateCacheToDb();
     }
@@ -35,7 +30,6 @@ public class TagApiCntTask {
     public void taskDay() {
         log.info("[每天执行],imei访问数量固定更新");
         cntCache.refreshCache();
-        service.addImeiCnt();
     }
 
     @PreDestroy

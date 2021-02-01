@@ -7,7 +7,9 @@ import com.wen.awenboot.biz.service.ZhuangkuFileService;
 import com.wen.awenboot.cache.TagDetailCntCache;
 import com.wen.awenboot.common.OkHttpUtil;
 import com.wen.awenboot.common.ReadFilePageUtil;
+import com.wen.awenboot.common.SpringUtil;
 import com.wen.awenboot.common.ThreadPoolThreadFactoryUtil;
+import com.wen.awenboot.config.SpringConfig;
 import com.wen.awenboot.config.ZhuangkuConfig;
 import com.wen.awenboot.enums.ApiDetailCntEnum;
 import com.wen.awenboot.integration.zhuangku.Result;
@@ -23,7 +25,11 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -50,6 +56,8 @@ public class Init {
 
     private int printWriteCount = 0;
 
+    private int loopCount = 0;
+
     @Autowired
     private RestTemplate restTemplate;
 
@@ -58,7 +66,6 @@ public class Init {
 
     // 当前时间的分钟数,用来调整流控速率
     private int currentMinute;
-
 
     @PostConstruct
     private void init() {
@@ -75,9 +82,70 @@ public class Init {
             } catch (InterruptedException e) {
                 log.error("", e);
             }
-            execute1();
+            executeLoop();
         });
         thd.start();
+
+    }
+
+    private void executeLoop() {
+        while (true) {
+            loopCount++;
+            execute1();
+            checkFileEndFlag();
+            try {
+                TagFileUtils.cpBakRetDir(cfg.getCpRetDir());
+            } catch (IOException e) {
+                log.error("", e);
+            }
+            log.info("====执行[{}]轮完毕", loopCount);
+            log.info("====执行[{}]轮完毕", loopCount);
+            log.info("====执行[{}]轮完毕", loopCount);
+            try {
+                // 逻辑有拷贝文件功能这里休眠长一点
+                TimeUnit.SECONDS.sleep(10);
+            } catch (InterruptedException e) {
+                log.error("", e);
+            }
+            deleteTempFile();
+        }
+    }
+
+    private void deleteTempFile() {
+        try {
+            final List<Path> collect = Files.list(Paths.get(cfg.getExportDir())).filter(p -> p.toString().endsWith(".txt")).collect(Collectors.toList());
+            collect.forEach(p -> {
+                try {
+                    Files.delete(p);
+                } catch (IOException e) {
+                    log.error("删除异常", e);
+                }
+            });
+            log.error("删除临时文件,文件列表={}", collect.toString());
+        } catch (Exception e) {
+            log.error("Files.list异常", e);
+        }
+    }
+
+    /**
+     * 检查文件是否处理完成,没完成就等
+     */
+    private void checkFileEndFlag() {
+        LinkedList<String> exportFileList = SpringUtil.getBean(SpringConfig.class).getExportFileList();
+
+        while (true) {
+            if (exportFileList.size() == 0) {
+                log.info("检查文件处理完成");
+                return;
+            }
+            try {
+                log.info("当前文件还未处理完成,休眠60s,当前文件内容是{}", exportFileList.iterator().toString());
+                // 逻辑有拷贝文件功能这里休眠长一点
+                TimeUnit.SECONDS.sleep(60);
+            } catch (InterruptedException e) {
+                log.error("", e);
+            }
+        }
 
     }
 
@@ -113,11 +181,6 @@ public class Init {
             }
         }
 
-        try {
-            TagFileUtils.cpBakRetDir(cfg.getCpRetDir());
-        } catch (IOException e) {
-            log.error("", e);
-        }
         long end = System.currentTimeMillis();
         log.info("导出完毕,耗时{}ms", end - start);
     }

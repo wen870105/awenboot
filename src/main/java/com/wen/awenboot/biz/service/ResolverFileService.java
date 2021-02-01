@@ -6,6 +6,7 @@ import cn.hutool.core.date.TimeInterval;
 import cn.hutool.core.util.StrUtil;
 import com.wen.awenboot.common.ReadFilePageUtil;
 import com.wen.awenboot.common.SpringUtil;
+import com.wen.awenboot.config.SpringConfig;
 import com.wen.awenboot.config.ZhuangkuConfig;
 import com.wen.awenboot.utils.ShellUtils;
 import com.wen.awenboot.utils.TagFileUtils;
@@ -53,27 +54,31 @@ public class ResolverFileService {
             wirte("", false);
         }
 
-
         log.info("初始化导出文件服务:dataSourceFile={},exportFile={}", dataSourceFile.getPath(), exportFile.getPath());
     }
 
     public void asyncExport() {
         new Thread(() -> {
             log.info("[异步解析]文件file1={}", this.dataSourceFile);
-            TimeInterval timer = DateUtil.timer();
-            if (getDataSourceFile() != null) {
-                export();
-            }
-            long interval = timer.interval();
-            log.info("[异步解析]文件name={},耗时{}ms", dataSourceFile.getName(), interval);
+
+            SpringUtil.getBean(SpringConfig.class).getExportFileList().offer(this.dataSourceFile.getName());
 
             try {
+                TimeInterval timer = DateUtil.timer();
+                if (getDataSourceFile() != null) {
+                    export();
+                }
+                long interval = timer.interval();
+                log.info("[异步解析]文件name={},耗时{}ms", dataSourceFile.getName(), interval);
+
                 if (exportFile.exists()) {
                     cpRetFileToDir();
                     executeShellToHive();
                 }
             } catch (Throwable e) {
                 log.error("[异步解析后异常]", e);
+            }finally {
+                SpringUtil.getBean(SpringConfig.class).getExportFileList().poll();
             }
         }).start();
     }

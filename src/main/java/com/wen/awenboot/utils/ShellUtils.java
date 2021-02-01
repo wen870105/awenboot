@@ -42,7 +42,7 @@ public class ShellUtils {
             String result = sb.toString();
 
             log.info("[执行脚本]结果:{}", sb.toString());
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.error("[执行脚本]异常", e);
         }
     }

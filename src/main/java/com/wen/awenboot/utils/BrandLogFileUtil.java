@@ -109,11 +109,13 @@ public class BrandLogFileUtil {
 
 
     private static void brandTest() {
-        String p = "{\"timestamp\": 12/Nov \"remote_addr\": 10.191.1.11 \"request_body\":\"\\n{\\\"\\head\\\":{\\\"requestRefid\\\":\\\"estetsetsetsetset\\\"},\\\"request\\\":\\\"qqqq22222\\\"} , \\\"responseCode\\\":\\\"0000\\\" \"response_status\": 200 \\\"response_body\\\":\"{\\\"head\\\":{},\\\"response\\\":\\\"rrr2222\" }}";
+        String p = "{\"timestamp\": 12/Nov \"remote_addr\": 10.191.1.11 \"secretId\" : \"10118\" \"request_body\":\"\\n{\\\"\\head\\\":{\\\"requestRefid\\\":\\\"estetsetsetsetset\\\"},\\\"request\\\":\\\"qqqq22222\\\"} , \\\"responseCode\\\":\\\"0000\\\" \"response_status\": 200 \\\"response_body\\\":\"{\\\"head\\\":{},\\\"response\\\":\\\"rrr2222\" }}";
 //        String p = "{\"timestamp\": 12/Nov \"remote_addr\": 10.191.1.11 \"request_body\":\"\\n{\\\"\\head\\\":{\\\"requestRefid\\\":\\\"estetsetsetsetset\\\"},\\\"request\\\":\\\"seatsaetsett\\\"} \" \"response_status\": 200 \\\"response_body\\\":\"{\\\"head\\\":{},\\\"response\\\":\\\"testset\n" +
 //                "\\\"}\"}";
         String s = trimParam(p);
         String val = getCodeVal(s, "responseCode");
+        String secretId = getCodeVal(s, "secretId");
+        System.out.println(secretId);
 //        System.out.println("reuqest=" + request);
         System.out.println("reuqestVal=" + val);
     }

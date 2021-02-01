@@ -76,7 +76,7 @@ public class ZhuangkuConfig {
         if (ret != null) {
             return ret;
         }
-        return 1;
+        return 100;
     }
 
     /**
