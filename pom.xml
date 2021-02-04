@@ -32,6 +32,12 @@
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>3.12.1</version>
+        </dependency>
         <!--        <dependency>-->
         <!--            <groupId>io.netty</groupId>-->
         <!--            <artifactId>netty-all</artifactId>-->
@@ -112,6 +118,10 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
             <exclusions>
@@ -150,7 +160,7 @@
     </dependencies>
 
     <build>
-        <finalName>zhuangku</finalName>
+        <finalName>malaxiaoyu</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

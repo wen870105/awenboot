@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+	用户信息	
+	@author Wen
+ 	@since 2021-01-23 
+-->
+<mapper namespace="com.wen.awenboot.dao.BizUserDao">
+	
+	<resultMap id="BizUser-Map" type="com.wen.awenboot.domain.BizUser">
+		<result property="id" column="ID"/>
+		<result property="phoneNum" column="PHONE_NUM"/>
+		<result property="headerImg" column="HEADER_IMG"/>
+		<result property="name" column="NAME"/>
+		<result property="openid" column="OPENID"/>
+		<result property="memo" column="MEMO"/>
+		<result property="createDate" column="CREATE_DATE"/>
+	</resultMap>
+	
+	
+	
+	
+	
+	
+</mapper>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+	小程序访问密码表,每个授权码只能使用一次	
+	@author Wen
+ 	@since 2021-01-23 
+-->
+<mapper namespace="com.wen.awenboot.dao.BizWechatPwdDao">
+	
+	<resultMap id="BizWechatPwd-Map" type="com.wen.awenboot.domain.BizWechatPwd">
+		<result property="id" column="ID"/>
+		<result property="code" column="CODE"/>
+		<result property="openid" column="OPENID"/>
+		<result property="creator" column="CREATOR"/>
+		<result property="createTime" column="CREATE_TIME"/>
+	</resultMap>
+	
+	
+	
+	
+	
+	
+</mapper>
