@@ -1,5 +1,6 @@
 package com.wen.awenboot.task;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.TimeInterval;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
@@ -29,6 +30,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -92,9 +94,16 @@ public class InitMusic {
         // 流控qps
         RateLimiter limiter = RateLimiter.create(cfg.getRateLimiterQps());
 
-        List<File> files = Arrays.stream(file.listFiles()).sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
-                .filter(p -> cfg.getIncludeDataFileList().contains(p.getName()))
-                .collect(Collectors.toList());
+        List<File> files = null;
+        Set<String> includeDataFileList = cfg.getIncludeDataFileList();
+        if (CollectionUtil.isNotEmpty(includeDataFileList)) {
+            files = Arrays.stream(file.listFiles()).sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
+                    .filter(p -> includeDataFileList.contains(p.getName()))
+                    .collect(Collectors.toList());
+        }else{
+            files = Arrays.stream(file.listFiles()).sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
+                    .collect(Collectors.toList());
+        }
         log.info("读取文件列表:{}", files.toString());
         for (File f : files) {
             ZhuangkuFileService zkfs = new ZhuangkuFileService(cfg, f.getName());

@@ -1,6 +1,6 @@
 package com.wen.awenboot.task;
 
-import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.wen.awenboot.biz.service.BrandFileService;
@@ -20,6 +20,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +55,7 @@ public class BrandLogTask {
         } else {
             return;
         }
-        File file = new File(cfg.getDataSourceDir() + cfg.getDtpFilePrefix() + DateTime.now().toString("yyyyMMdd"));
+        File file = new File(cfg.getDataSourceDir() + cfg.getDtpFilePrefix() + DateUtil.offsetDay(new Date(), -1).toString("yyyyMMdd"));
         if (!file.exists()) {
             log.error("================{}文件不存在", file.getPath());
             log.error("================{}文件不存在", file.getPath());
