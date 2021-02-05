@@ -1,7 +1,6 @@
 package com.wen.awenboot.common;
 
 import cn.hutool.core.map.MapUtil;
-import com.wen.awenboot.config.ZhuangkuConfig;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -10,7 +9,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -39,9 +37,6 @@ public class OkHttpUtil {
     private static final byte[] LOCKER = new byte[0];
     private OkHttpClient mOkHttpClient;
 
-    @Autowired
-    private ZhuangkuConfig cfg;
-
     /**
      * 自定义网络回调接口
      */
@@ -53,11 +48,11 @@ public class OkHttpUtil {
 
     @PostConstruct
     private void init() {
-        log.info("READ_TIMEOUT={},WRITE_TIMEOUT={}", cfg.getReadTimeout(), cfg.getWriteTimeout());
+        log.info("READ_TIMEOUT={},WRITE_TIMEOUT={}", 5000, 5000);
         okhttp3.OkHttpClient.Builder ClientBuilder = new okhttp3.OkHttpClient.Builder();
-        ClientBuilder.readTimeout(cfg.getReadTimeout(), TimeUnit.MILLISECONDS);
-        ClientBuilder.connectTimeout(cfg.getConnectTimeout(), TimeUnit.MILLISECONDS);
-        ClientBuilder.writeTimeout(cfg.getReadTimeout(), TimeUnit.MILLISECONDS);
+        ClientBuilder.readTimeout(5000, TimeUnit.MILLISECONDS);
+        ClientBuilder.connectTimeout(5000, TimeUnit.MILLISECONDS);
+        ClientBuilder.writeTimeout(5000, TimeUnit.MILLISECONDS);
         //支持HTTPS请求，跳过证书验证
         ClientBuilder.sslSocketFactory(createSSLSocketFactory());
         ClientBuilder.hostnameVerifier(new HostnameVerifier() {

@@ -4,12 +4,17 @@
  */
 package com.wen.awenboot.aop;
 
+import com.wen.awenboot.cache.TagDetailCntCache;
+import com.wen.awenboot.enums.ApiDetailCntEnum;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
 
 /**
  * @author wsy48420
@@ -21,62 +26,28 @@ public class ServiceTimerAspect {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceTimerAspect.class);
 
-    /**
-     * @param pjp
-     * @return
-     * @throws Throwable
-     */
-//    @Around(value = "execution(* *(..)) && @annotation(serviceTimerMetadata)", argNames = "pjp,serviceTimerMetadata")
-    @Around(value = "execution(* com.wen.springboot.awenboot.*.*(..))")
-    public Object doIndicator(final ProceedingJoinPoint pjp) throws Throwable {
+    @PostConstruct
+    private void init() {
+        logger.info("===");
+    }
 
-//        preProcess(pjp, serviceTimerMetadata);
-        Object obj = null;
-        long start = System.currentTimeMillis();
-        try {
 
-            System.out.println("1111111" + pjp.getArgs());
-            obj = pjp.proceed();
-            return obj;
-        } catch (Throwable t) {
-//            processExceptionCallback(pjp, serviceTimerMetadata, t);
-            throw t;
-        } finally {
-//            postProcess(pjp, serviceTimerMetadata, obj, start);
-        }
+    @Pointcut(value = "execution(public * com.wen.awenboot.controller.*.*(..))")
+    public void pointcut() {
 
     }
 
-//    private void preProcess(ProceedingJoinPoint pjp, ServiceTimerMetadata serviceTimerMetadata) {
-//
-//    }
-//
-//    private void postProcess(ProceedingJoinPoint pjp, ServiceTimerMetadata serviceTimerMetadata, Object obj, long start) {
-//        if (serviceTimerMetadata.asyncWriteResponseLog()) {
-//            cb(obj, pjp, serviceTimerMetadata, System.currentTimeMillis() - start);
-//        } else {
-//            LoggerUtils.info(logger, "[{}]耗时: {}ms,响应参数:{}", serviceTimerMetadata.name(), System.currentTimeMillis() - start, JSON.toJSONString(obj));
-//        }
-//    }
-//
-//    private Object processExceptionCallback(ProceedingJoinPoint pjp, ServiceTimerMetadata serviceTimerMetadata, Throwable t) {
-//        return null;
-//    }
-//
-//    /**
-//     * @param pjp
-//     * @param serviceTimerMetadata
-//     */
-//    private void cb(Object obj, ProceedingJoinPoint pjp, ServiceTimerMetadata serviceTimerMetadata, long elapsedTime) {
-//        if (StringUtils.isNotBlank(serviceTimerMetadata.callback())) {
-//            LogCallback cb = SpringContextUtil.getBean(serviceTimerMetadata.callback(), LogCallback.class);
-//            if (cb != null) {
-//                try {
-//                    cb.callback(obj, pjp, serviceTimerMetadata, elapsedTime);
-//                } catch (Exception e) {
-//                    LoggerUtils.info(logger, "", e);
-//                }
-//            }
-//        }
-//    }
+    @Around("pointcut()")
+    public Object beforeMethod(ProceedingJoinPoint pjp) throws Throwable {
+        Object obj = null;
+        long start = System.currentTimeMillis();
+        try {
+            TagDetailCntCache.getInstance().incrementAndGet(ApiDetailCntEnum.WEB.getCode());
+            obj = pjp.proceed();
+            return obj;
+        } catch (Throwable t) {
+            throw t;
+        } finally {
+        }
+    }
 }

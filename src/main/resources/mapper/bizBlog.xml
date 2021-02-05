@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+	课程内容	
+	@author Wen
+ 	@since 2021-02-05 
+-->
+<mapper namespace="com.wen.awenboot.dao.BizBlogDao">
+	
+	<resultMap id="BizBlog-Map" type="com.wen.awenboot.domain.BizBlog">
+		<result property="id" column="ID"/>
+		<result property="title" column="title"/>
+		<result property="thumbnail" column="thumbnail"/>
+		<result property="video" column="video"/>
+		<result property="ppt" column="ppt"/>
+		<result property="createDate" column="CREATE_DATE"/>
+	</resultMap>
+
+	<select id="selectPageList" resultType="int" parameterType="com.wen.awenboot.domain.BizBlog">
+		<include refid="selectPageSql"/>
+		limit #{startIndex},#{offset}
+	</select>
+	
+	<select id="selectPageCount" resultType="int" parameterType="com.wen.awenboot.domain.BizBlog">
+		select count(1) from (<include refid="selectPageSql"/>) as tmp
+	</select>
+	
+
+	<sql id="selectPageSql">
+		select * from biz_blog where 1=1
+	</sql>
+	
+</mapper>

@@ -7,11 +7,11 @@ logback:
 
 spring:
   thymeleaf:
-      prefix: classpath:/static
-      suffix: .html
+    prefix: classpath:/static
+    suffix: .html
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://localhost:3306/springboot_plus?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
     username: root
     password: 123456
 
@@ -20,8 +20,9 @@ mybatis:
   mapper-locations:
     - classpath:mapper/*.xml
 
-
-
+mala:
+  appid: wx9de528650a768c77
+  secret: db8368aa78a1945ff7bdfdbcb598489e
 
 
 
