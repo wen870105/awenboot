@@ -2,6 +2,7 @@ package com.wen.awenboot.converter;
 
 import com.wen.awenboot.controller.response.DetailResponse;
 import com.wen.awenboot.domain.BizBlog;
+import com.wen.awenboot.domain.base.Page;
 import org.mapstruct.Mapper;
 
 import java.util.List;
@@ -16,4 +17,6 @@ public interface BizBlogConverter {
     DetailResponse blog2Detail(BizBlog obj);
 
     List<DetailResponse> blogList2Detail(List<BizBlog> obj);
+
+    Page<DetailResponse> p2p(Page<BizBlog> obj);
 }

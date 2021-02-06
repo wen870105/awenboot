@@ -6,7 +6,7 @@
 	@author Wen
  	@since 2021-01-23 
 -->
-<mapper namespace="com.wen.awenboot.dao.BizUserDao">
+<mapper namespace="com.wen.awenboot.dao.BizUserMapper">
 	
 	<resultMap id="BizUser-Map" type="com.wen.awenboot.domain.BizUser">
 		<result property="id" column="ID"/>

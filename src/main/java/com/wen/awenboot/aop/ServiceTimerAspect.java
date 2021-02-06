@@ -28,7 +28,7 @@ public class ServiceTimerAspect {
 
     @PostConstruct
     private void init() {
-        logger.info("===");
+        logger.info("初始化AOP功能");
     }
 
 

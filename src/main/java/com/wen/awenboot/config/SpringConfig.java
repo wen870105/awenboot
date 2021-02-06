@@ -1,12 +1,14 @@
 package com.wen.awenboot.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import com.wen.awenboot.service.OpenidServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.web.context.WebApplicationContext;
 
 /**
  * @author wen
@@ -18,11 +20,10 @@ import org.springframework.web.client.RestTemplate;
 @Import(cn.hutool.extra.spring.SpringUtil.class)
 public class SpringConfig {
 
-    @Autowired
-    RestTemplateBuilder builder;
-
     @Bean
-    public RestTemplate restTemplate() {
-        return builder.build();
+    @Lazy
+    @Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
+    public OpenidServiceImpl openidService() {
+        return new OpenidServiceImpl();
     }
 }

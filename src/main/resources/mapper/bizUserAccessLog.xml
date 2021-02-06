@@ -6,7 +6,7 @@
 	@author Wen
  	@since 2021-01-23 
 -->
-<mapper namespace="com.wen.awenboot.dao.BizUserAccessLogDao">
+<mapper namespace="com.wen.awenboot.dao.BizUserAccessLogMapper">
 	
 	<resultMap id="BizUserAccessLog-Map" type="com.wen.awenboot.domain.BizUserAccessLog">
 		<result property="id" column="ID"/>

@@ -17,6 +17,7 @@ import javax.annotation.PostConstruct;
 @Slf4j
 @Data
 public class MalaConfig {
+    private boolean mockWechatCode = false;
     private String appid;
     private String secret;
 

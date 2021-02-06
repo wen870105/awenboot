@@ -19,10 +19,18 @@ public class Result {
         this.obj = obj;
     }
 
+    public static Result msg(String msg) {
+        return new Result("200", msg, null);
+    }
+
+    public static Result success() {
+        return new Result("200", "success", null);
+    }
 
     public static Result success(Object obj) {
         return new Result("200", "success", obj);
     }
+
     public static Result error(String msg) {
         return new Result("500", msg, null);
     }

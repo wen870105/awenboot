@@ -4,7 +4,7 @@
 package com.wen.awenboot.dao;
 
 import com.wen.awenboot.domain.BizBlog;
-import tk.mybatis.mapper.common.Mapper;
+import com.wen.awenboot.utils.BaseMapper;
 
 
 /**
@@ -12,6 +12,6 @@ import tk.mybatis.mapper.common.Mapper;
  * @author Wen
  * @since 2021-02-05
  */
-public interface BizBlogMapper extends Mapper<BizBlog> {
+public interface BizBlogMapper extends BaseMapper<BizBlog> {
 
 }

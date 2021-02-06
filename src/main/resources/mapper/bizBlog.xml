@@ -6,7 +6,7 @@
 	@author Wen
  	@since 2021-02-05 
 -->
-<mapper namespace="com.wen.awenboot.dao.BizBlogDao">
+<mapper namespace="com.wen.awenboot.dao.BizBlogMapper">
 	
 	<resultMap id="BizBlog-Map" type="com.wen.awenboot.domain.BizBlog">
 		<result property="id" column="ID"/>
@@ -17,7 +17,7 @@
 		<result property="createDate" column="CREATE_DATE"/>
 	</resultMap>
 
-	<select id="selectPageList" resultType="int" parameterType="com.wen.awenboot.domain.BizBlog">
+	<select id="selectPageList"  resultMap="BizBlog-Map" parameterType="com.wen.awenboot.domain.BizBlog">
 		<include refid="selectPageSql"/>
 		limit #{startIndex},#{offset}
 	</select>
