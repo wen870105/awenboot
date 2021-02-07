@@ -9,6 +9,11 @@ spring:
   thymeleaf:
     prefix: classpath:/static/
     suffix: .html
+    mode: LEGACYHTML5
+  resources:
+    static-locations: classpath:/templates/,classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/
+  mvc:
+    static-path-pattern: /static/**
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://47.114.118.27:3306/springboot_plus?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai

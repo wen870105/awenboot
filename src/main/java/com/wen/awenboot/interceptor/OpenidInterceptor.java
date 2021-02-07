@@ -2,8 +2,8 @@ package com.wen.awenboot.interceptor;
 
 import com.alibaba.fastjson.JSON;
 import com.wen.awenboot.controller.response.Result;
-import com.wen.awenboot.domain.BizUserAccessLog;
 import com.wen.awenboot.service.OpenidServiceImpl;
+import com.wen.awenboot.vo.UserInfoVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,12 +25,7 @@ public class OpenidInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String token = request.getHeader("token");
-        request.setAttribute("token", token);
-        log.info("token : [ {} ]", token);
-
-        openidService.setToken(token);
-        BizUserAccessLog accessLog = openidService.getAccessLog();
+        UserInfoVo accessLog = openidService.getUserInfoVo();
         if (accessLog == null) {
             handleFalseResponse(response);
             return false;

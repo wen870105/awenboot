@@ -31,4 +31,9 @@ public class BizUserServiceImpl extends BaseServiceImpl<BizUser> {
         return infoMapper;
     }
 
+    public BizUser getByOpenid(String openid) {
+        BizUser query = new BizUser();
+        query.setOpenid(openid);
+        return selectOne(query);
+    }
 }

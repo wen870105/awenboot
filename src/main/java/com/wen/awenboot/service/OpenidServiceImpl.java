@@ -1,8 +1,8 @@
 package com.wen.awenboot.service;
 
-import com.wen.awenboot.domain.BizUserAccessLog;
 import com.wen.awenboot.utils.RedisCli;
-import lombok.Data;
+import com.wen.awenboot.vo.UserInfoVo;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -12,22 +12,31 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @date 2021/2/6 23:35
  */
 
-@Data
 @Slf4j
 public class OpenidServiceImpl {
+    @Setter
     private String token;
-    private BizUserAccessLog accessLog;
+    private UserInfoVo userInfo;
 
     @Autowired
     private RedisCli redisCli;
 
 
-    public BizUserAccessLog getAccessLog() {
+    public UserInfoVo getUserInfoVo() {
         if (token == null) {
-            log.info("token为空");
             return null;
         }
-        accessLog = redisCli.get(token, BizUserAccessLog.class);
-        return accessLog;
+        userInfo = redisCli.get(token, UserInfoVo.class);
+        return userInfo;
+    }
+
+    public String getOpenid() {
+        if (userInfo == null) {
+            this.userInfo = getUserInfoVo();
+        }
+        if (userInfo != null) {
+            return userInfo.getOpenid();
+        }
+        return null;
     }
 }

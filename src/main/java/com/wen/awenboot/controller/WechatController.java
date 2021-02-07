@@ -3,17 +3,20 @@ package com.wen.awenboot.controller;
 import cn.hutool.core.date.TimeInterval;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.wen.awenboot.config.MalaConfig;
 import com.wen.awenboot.controller.request.AddpwdRequest;
+import com.wen.awenboot.controller.request.AdduserRequest;
 import com.wen.awenboot.controller.request.CodeRequest;
 import com.wen.awenboot.controller.request.DetailRequest;
 import com.wen.awenboot.controller.request.ListRequest;
 import com.wen.awenboot.controller.response.DetailResponse;
 import com.wen.awenboot.controller.response.Result;
 import com.wen.awenboot.converter.BizBlogConverter;
+import com.wen.awenboot.converter.BizUserConverter;
 import com.wen.awenboot.domain.BizBlog;
-import com.wen.awenboot.domain.BizUserAccessLog;
+import com.wen.awenboot.domain.BizUser;
 import com.wen.awenboot.domain.BizWechatPwd;
 import com.wen.awenboot.domain.base.Page;
 import com.wen.awenboot.service.BizBlogServiceImpl;
@@ -54,6 +57,8 @@ public class WechatController {
     @Autowired
     private OpenidServiceImpl openidService;
     @Autowired
+    private BizUserConverter userConvert;
+    @Autowired
     private MalaConfig cfg;
 
     private AtomicLong id = new AtomicLong(0L);
@@ -87,27 +92,34 @@ public class WechatController {
     @ResponseBody
     public Object addpwd(@RequestBody AddpwdRequest query) {
         log.info("request={}", JSON.toJSONString(query));
-        BizWechatPwd byPwd = pwdService.getByCode(query.getPwd());
         Result codeRet = null;
-        if (byPwd == null) {
-            log.info("pwd={}无效", query.getPwd());
-            codeRet = Result.error("pwd={}无效" + query.getPwd());
-        } else {
-            if (byPwd.getStatus() == 0) {
-                BizUserAccessLog accessLog = openidService.getAccessLog();
-                if (accessLog != null) {
-                    boolean b = pwdService.updateValidPwd(query.getPwd(), accessLog.getOpenid());
-                    codeRet = Result.msg("修改状态b=" + b);
-                } else {
-                    codeRet = Result.error("token无效");
-                }
-            } else {
-                log.info("pwd={}已经使用", query.getPwd());
-                codeRet = Result.error("pwd={}已经使用" + query.getPwd());
+        try {
+            String openid = openidService.getOpenid();
+            if (StrUtil.isBlank(openid)) {
+                return codeRet = Result.error("请先登录授权");
             }
+            BizWechatPwd byPwd = pwdService.getByCode(query.getPwd());
+            if (byPwd == null) {
+                log.info("pwd={}无效", query.getPwd());
+                return codeRet = Result.error("pwd={}无效" + query.getPwd());
+            } else {
+                if (byPwd.getStatus() == 0) {
+                    boolean b = pwdService.updateValidPwd(query.getPwd(), openid);
+                    if (b) {
+                        return codeRet = Result.success();
+                    } else {
+                        return codeRet = Result.msg("密码已使用");
+                    }
+                } else {
+                    log.info("pwd={}已经使用", query.getPwd());
+                    return codeRet = Result.error("pwd={}已经使用" + query.getPwd());
+                }
+            }
+        } finally {
+            log.info("resp={}", JSON.toJSONString(codeRet));
         }
-        log.info("resp={}", JSON.toJSONString(codeRet));
-        return codeRet;
+
+
     }
 
     @RequestMapping("/detail")
@@ -121,6 +133,12 @@ public class WechatController {
             codeRet = Result.error("数据为空id=" + query.getId());
         } else {
             final DetailResponse detailResponse = blogConverter.blog2Detail(bizBlog);
+            String openid = openidService.getOpenid();
+            log.info("openid={}", openid);
+            if (StrUtil.isNotBlank(openid)) {
+                BizWechatPwd byOpenid = pwdService.getByOpenid(openid);
+                detailResponse.setPaid(byOpenid != null ? true : false);
+            }
             codeRet = Result.success(detailResponse);
         }
         log.info("resp={}", JSON.toJSONString(codeRet));
@@ -141,6 +159,27 @@ public class WechatController {
         return codeRet;
     }
 
+
+    @RequestMapping("/adduser")
+    @ResponseBody
+    public Result adduser(@RequestBody AdduserRequest request) {
+        TimeInterval ti = new TimeInterval();
+        log.info("request={}", request);
+        String openid = openidService.getOpenid();
+        BizWechatPwd byOpenid = pwdService.getByOpenid(openid);
+        Result codeRet;
+        if (byOpenid == null) {
+            BizUser bizUser = userConvert.d2v(request);
+            bizUser.setCreateDate(new Date());
+            bizUser.setOpenid(openid);
+            userService.add(bizUser);
+            codeRet = Result.success();
+        } else {
+            codeRet = Result.msg("当前用户已经存在");
+        }
+        log.info("耗时{}ms,resp={}", ti.interval(), JSON.toJSONString(codeRet));
+        return codeRet;
+    }
 
     @RequestMapping("/code")
     @ResponseBody

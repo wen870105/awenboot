@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 /**
  * @author wen
@@ -17,6 +18,7 @@ import org.springframework.web.context.WebApplicationContext;
  */
 @Configuration
 @EnableAspectJAutoProxy
+@EnableWebMvc
 @Import(cn.hutool.extra.spring.SpringUtil.class)
 public class SpringConfig {
 

@@ -8,8 +8,12 @@ import com.wen.awenboot.controller.request.CodeRequest;
 import com.wen.awenboot.controller.response.CodeResponse;
 import com.wen.awenboot.controller.response.Openid;
 import com.wen.awenboot.controller.response.Result;
+import com.wen.awenboot.converter.BizUserConverter;
+import com.wen.awenboot.domain.BizUser;
 import com.wen.awenboot.domain.BizUserAccessLog;
+import com.wen.awenboot.domain.BizWechatPwd;
 import com.wen.awenboot.utils.RedisCli;
+import com.wen.awenboot.vo.UserInfoVo;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,20 +36,28 @@ public class WechatServiceImpl {
     private OkHttpUtil client;
     @Autowired
     private BizUserAccessLogServiceImpl accessLogService;
+    @Autowired
+    private BizWechatPwdServiceImpl pwdService;
+    @Autowired
+    private BizUserConverter userConverter;
+    @Autowired
+    private BizUserServiceImpl userService;
 
     public Result getWechatCode(@RequestBody CodeRequest query) {
         Result codeRet;
         if (cfg.isMockWechatCode()) {
+            Openid openid = new Openid();
+            openid.setSession_key("test_sessionKey_wen123456");
+            openid.setExpires_in(7200);
+            openid.setOpenid("test_openid_wen123456");
+
             CodeResponse cr = new CodeResponse();
             cr.setToken("token_123456");
-            BizUserAccessLog alog = new BizUserAccessLog();
-            alog.setCode(query.getCode());
-            alog.setSessionKey("test_sessionKey_wen123456");
-            alog.setOpenid("test_openid_wen123456");
-            alog.setCreateDate(new Date());
-            alog.setExpiresIn(7200);
-            RedisCli.getInstance().set(cr.getToken(), alog);
-            log.info("mockwechatcode 方法,不写入数据库,token={},alog={}", cr.getToken(), alog);
+
+            UserInfoVo userInfoVo = updateUserInfo(query.getCode(), openid);
+
+            RedisCli.getInstance().set(cr.getToken(), userInfoVo);
+            log.info("mockwechatcode 方法 set redis,token={},userInfoVo={}", cr.getToken(), userInfoVo);
             codeRet = Result.success(cr);
             return codeRet;
         }
@@ -56,20 +68,41 @@ public class WechatServiceImpl {
             CodeResponse cr = new CodeResponse();
             cr.setToken("token_" + IdUtil.simpleUUID());
 
-            BizUserAccessLog alog = new BizUserAccessLog();
-            alog.setCode(query.getCode());
-            alog.setSessionKey(openid.getSession_key());
-            alog.setOpenid(openid.getOpenid());
-            alog.setCreateDate(new Date());
-            alog.setExpiresIn(openid.getExpires_in());
-            accessLogService.add(alog);
-            RedisCli.getInstance().set(cr.getToken(), alog);
-            log.info("set redis,token={},alog={}", cr.getToken(), alog);
+            UserInfoVo userInfoVo = updateUserInfo(query.getCode(), openid);
+
+            RedisCli.getInstance().set(cr.getToken(), userInfoVo);
+            log.info("set redis,token={},userInfoVo={}", cr.getToken(), userInfoVo);
             codeRet = Result.success(cr);
         } else {
             codeRet = Result.error(ret);
         }
         return codeRet;
+    }
+
+    private UserInfoVo updateUserInfo(String code, Openid openid) {
+        String openid1 = openid.getOpenid();
+        BizUserAccessLog alog = new BizUserAccessLog();
+        alog.setCode(code);
+        alog.setSessionKey(openid.getSession_key());
+        alog.setOpenid(openid1);
+        alog.setCreateDate(new Date());
+        alog.setExpiresIn(openid.getExpires_in());
+        accessLogService.add(alog);
+
+        BizUser bizUser = userService.getByOpenid(openid1);
+        if (bizUser == null) {
+            BizUser adder = new BizUser();
+            adder.setOpenid(openid1);
+            adder.setCreateDate(new Date());
+            userService.add(adder);
+            bizUser = userService.getByOpenid(openid1);
+        }
+
+        UserInfoVo userInfoVo = userConverter.ud2v(bizUser);
+        BizWechatPwd pwdInfo = pwdService.getByOpenid(openid1);
+        userInfoVo.setSessionKey(openid.getSession_key());
+        userInfoVo.setBizWechatPwd(pwdInfo);
+        return userInfoVo;
     }
 
     private String getCodeRet(@RequestBody CodeRequest query) {

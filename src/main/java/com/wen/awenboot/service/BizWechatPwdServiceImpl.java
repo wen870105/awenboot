@@ -4,7 +4,6 @@
 package com.wen.awenboot.service;
 
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
 import com.wen.awenboot.dao.BizWechatPwdMapper;
 import com.wen.awenboot.domain.BizWechatPwd;
 import com.wen.awenboot.service.base.BaseServiceImpl;
@@ -47,6 +46,13 @@ public class BizWechatPwdServiceImpl extends BaseServiceImpl<BizWechatPwd> {
         return bizWechatPwd;
     }
 
+    public BizWechatPwd getByOpenid(String openid) {
+        BizWechatPwd query = new BizWechatPwd();
+        query.setOpenid(openid);
+        BizWechatPwd bizWechatPwd = selectOne(query);
+        return bizWechatPwd;
+    }
+
     public boolean updateValidPwd(String pwd, String openid) {
         if (StrUtil.isBlank(openid)) {
             log.info("openid为空");
@@ -55,8 +61,6 @@ public class BizWechatPwdServiceImpl extends BaseServiceImpl<BizWechatPwd> {
         BizWechatPwd update = new BizWechatPwd();
         update.setCode(pwd);
         update.setOpenid(openid);
-        boolean ret = infoMapper.updateValidPwd(update) > 1 ? true : false;
-        log.info("修改状态{},", ret, JSON.toJSONString(update));
-        return ret;
+        return infoMapper.updateValidPwd(update) > 0 ? true : false;
     }
 }
