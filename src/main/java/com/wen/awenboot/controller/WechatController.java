@@ -12,6 +12,7 @@ import com.wen.awenboot.controller.request.CodeRequest;
 import com.wen.awenboot.controller.request.DetailRequest;
 import com.wen.awenboot.controller.request.ListRequest;
 import com.wen.awenboot.controller.response.DetailResponse;
+import com.wen.awenboot.controller.response.HeaderImgResponse;
 import com.wen.awenboot.controller.response.Result;
 import com.wen.awenboot.converter.BizBlogConverter;
 import com.wen.awenboot.converter.BizUserConverter;
@@ -20,6 +21,7 @@ import com.wen.awenboot.domain.BizUser;
 import com.wen.awenboot.domain.BizWechatPwd;
 import com.wen.awenboot.domain.base.Page;
 import com.wen.awenboot.service.BizBlogServiceImpl;
+import com.wen.awenboot.service.BizBlogVistorCounterServiceImpl;
 import com.wen.awenboot.service.BizUserAccessLogServiceImpl;
 import com.wen.awenboot.service.BizUserServiceImpl;
 import com.wen.awenboot.service.BizWechatPwdServiceImpl;
@@ -32,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -59,9 +62,21 @@ public class WechatController {
     @Autowired
     private BizUserConverter userConvert;
     @Autowired
+    private BizBlogVistorCounterServiceImpl cntService;
+    @Autowired
     private MalaConfig cfg;
 
     private AtomicLong id = new AtomicLong(0L);
+
+
+    @RequestMapping("/headerImg")
+    @ResponseBody
+    public Object headerImg() {
+        HeaderImgResponse resp = new HeaderImgResponse();
+        resp.setImgs(Arrays.asList("https://www.erkui.link/static/imgs/test_12345.jpg", "http://erkui.link/static/imgs/test_123456.jpg"));
+        Result codeRet = Result.success(resp);
+        return codeRet;
+    }
 
     @RequestMapping("/createpwd")
     @ResponseBody
@@ -101,7 +116,7 @@ public class WechatController {
             BizWechatPwd byPwd = pwdService.getByCode(query.getPwd());
             if (byPwd == null) {
                 log.info("pwd={}无效", query.getPwd());
-                return codeRet = Result.error("pwd={}无效" + query.getPwd());
+                return codeRet = Result.error(query.getPwd() + "无效");
             } else {
                 if (byPwd.getStatus() == 0) {
                     boolean b = pwdService.updateValidPwd(query.getPwd(), openid);
@@ -112,7 +127,7 @@ public class WechatController {
                     }
                 } else {
                     log.info("pwd={}已经使用", query.getPwd());
-                    return codeRet = Result.error("pwd={}已经使用" + query.getPwd());
+                    return codeRet = Result.error(query.getPwd() + "已经使用");
                 }
             }
         } finally {
@@ -138,6 +153,9 @@ public class WechatController {
             if (StrUtil.isNotBlank(openid)) {
                 BizWechatPwd byOpenid = pwdService.getByOpenid(openid);
                 detailResponse.setPaid(byOpenid != null ? true : false);
+
+                int cnt = cntService.incrementAndGet(query.getId());
+                detailResponse.setVistorCounter(cnt);
             }
             codeRet = Result.success(detailResponse);
         }
@@ -154,6 +172,11 @@ public class WechatController {
         query.setOffset(request.getPageSize());
         Page<BizBlog> pager = blogService.selectPage(query);
         Page<DetailResponse> pageDetail = blogConverter.p2p(pager);
+
+        pageDetail.getResult().forEach(detail -> {
+            detail.setVistorCounter(cntService.getCnt(detail.getId()));
+        });
+
         Result codeRet = Result.success(pageDetail);
         log.info("resp={}", JSON.toJSONString(codeRet));
         return codeRet;

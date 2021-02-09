@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+	课程内容	
+	@author Wen
+ 	@since 2021-02-05 
+-->
+<mapper namespace="com.wen.awenboot.dao.BizBlogVistorCounterMapper">
+	
+	<resultMap id="cnt-Map" type="com.wen.awenboot.domain.BizBlogVistorCounter">
+		<result property="id" column="ID"/>
+		<result property="blogId" column="blog_id"/>
+		<result property="cnt" column="cnt"/>
+	</resultMap>
+
+	<update id="incrementCnt" parameterType="BizWechatPwd">
+		update biz_blog_vistor_counter set cnt = cnt +1 where blog_id = #{blogId}
+	</update>
+	
+</mapper>

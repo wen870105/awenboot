@@ -40,7 +40,7 @@ mybatis:
     - classpath:mapper/*.xml
 
 mala:
-  mockWechatCode: true
+#  mockWechatCode: true
   appid: wx9de528650a768c77
   secret: db8368aa78a1945ff7bdfdbcb598489e
 

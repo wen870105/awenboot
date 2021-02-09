@@ -23,6 +23,7 @@ public class SetTokenInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String token = request.getHeader("token");
+        log.info("token={}",token);
         request.setAttribute("token", token);
         openidService.setToken(token);
         return true;

@@ -9,5 +9,5 @@ import lombok.Data;
  */
 @Data
 public class DetailRequest {
-    private Long id;
+    private Integer id;
 }

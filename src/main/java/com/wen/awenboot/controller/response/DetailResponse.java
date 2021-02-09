@@ -9,10 +9,11 @@ import lombok.Data;
  */
 @Data
 public class DetailResponse {
-    private String id;
+    private Integer id;
     private String title;
     private String thumbnail;
     private String video;
     private String ppt;
+    private Integer vistorCounter = 0;
     private boolean paid;
 }
