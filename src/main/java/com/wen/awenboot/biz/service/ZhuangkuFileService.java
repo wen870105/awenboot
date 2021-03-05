@@ -121,6 +121,7 @@ public class ZhuangkuFileService {
     public void endExport() {
         tempFilePps.setProperty(tempFilePpsEndKey, "true");
         updateProperties();
+        log.info("文件解析完毕path={}", file.getPath());
     }
 
     public void wirte(String str) {

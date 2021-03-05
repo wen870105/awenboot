@@ -64,6 +64,10 @@ public class ZhuangkuConfig {
 
     private boolean showLog = false;
 
+    private String imeiTaskSchedule = "0 0 7 * * ?";
+
+    private String imeiFilePrefix = "imei-";
+
     @PostConstruct
     private void init() {
         log.info("ZhuangkuConfig={}", JSON.toJSONString(this));

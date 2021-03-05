@@ -1,5 +1,6 @@
 package com.wen.awenboot.controller;
 
+import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -9,11 +10,16 @@ import com.wen.awenboot.config.ZhuangkuConfig;
 import com.wen.awenboot.enums.ApiDetailCntEnum;
 import com.wen.awenboot.integration.zhuangku.ProductInfo;
 import com.wen.awenboot.integration.zhuangku.Result;
+import com.wen.awenboot.integration.zhuangku.ResultImei;
 import com.wen.awenboot.integration.zhuangku.ResultMusic;
+import com.wen.awenboot.integration.zhuangku.ServNumInfo;
 import com.wen.awenboot.task.BrandLogTask;
 import com.wen.awenboot.task.GotoneTask;
+import com.wen.awenboot.task.InitIMEITask;
 import com.wen.awenboot.task.InitVideoDay;
+import com.wen.awenboot.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,7 +28,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.stream.Collectors;
 
 @Controller
@@ -48,6 +56,9 @@ public class TestController {
 
     @Autowired
     private InitVideoDay mInitVideoDay;
+
+    @Autowired
+    private InitIMEITask mInitIMEITask;
 
     @RequestMapping("/addCache/{key}")
     @ResponseBody
@@ -196,5 +207,38 @@ public class TestController {
         return "success";
     }
 
+    @RequestMapping(value = "/imei/{imei}")
+    @ResponseBody
+    public ResultImei imei(@PathVariable("imei") String imei) {
+        //    0000	查询成功，返回产品推荐查询结果。
+        //    0001	查询成功，无产品推荐内容。
+        //    1002	查询失败，请求手机号码格式不符合要求。
+        //    1003	查询失败，系统内部故障。
+        ResultImei ret = new ResultImei();
+        ret.setResultCode("0000");
+        ServNumInfo info = new ServNumInfo();
+        info.setServ_num("183" + RandomUtil.randomNumbers(8));
+        ret.setServNumInfo(info);
+        return ret;
+    }
 
+    @RequestMapping(value = "/task/imei/{date}")
+    @ResponseBody
+    public Object taskImei(@PathVariable("date") String date) {
+        mInitIMEITask.execute1(date);
+        return "success";
+    }
+
+
+    public static void main(String[] args) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 5; i++) {
+            sb.append("860").append(RandomUtil.randomNumbers(11)).append("\n");
+        }
+        try {
+            FileUtils.write(new File("D:\\wen_test\\data\\imei-" + DateUtils.asString(new Date(), "yyyyMMdd") + ".txt"), sb.toString(), "UTF-8");
+        } catch (IOException e) {
+            log.error("", e);
+        }
+    }
 }

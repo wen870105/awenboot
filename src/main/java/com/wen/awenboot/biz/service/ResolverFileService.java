@@ -77,8 +77,29 @@ public class ResolverFileService {
                 }
             } catch (Throwable e) {
                 log.error("[异步解析后异常]", e);
-            }finally {
+            } finally {
                 SpringUtil.getBean(SpringConfig.class).getExportFileList().poll();
+            }
+        }).start();
+    }
+
+    public void asyncExportByImei() {
+        new Thread(() -> {
+            log.info("[异步解析]文件file1={}", this.dataSourceFile);
+            try {
+                TimeInterval timer = DateUtil.timer();
+                if (getDataSourceFile() != null) {
+                    export();
+                }
+                long interval = timer.interval();
+                log.info("[异步解析]文件name={},耗时{}ms", dataSourceFile.getName(), interval);
+
+                if (exportFile.exists()) {
+                    cpRetFileToDir();
+                    executeShellToHive();
+                }
+            } catch (Throwable e) {
+                log.error("[异步解析后异常]", e);
             }
         }).start();
     }
