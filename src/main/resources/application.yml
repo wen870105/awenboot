@@ -8,9 +8,18 @@ logback:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
     url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-    username: root
-    password: 123456
+    username: ${jdbc.username}
+    password: ${jdbc.password}
+    druid:
+      filters: config
+      connectionProperties: config.decrypt=true;config.decrypt.key=${jdbc.publickey}
+
+jdbc:
+  username: root
+  password: gBjpxyLLVOS3J1yfA+MExmAmC8wg2+3AJALoPcpP+gxTRG2GiBV9ujkQEdpqsRFBUZxAe61IG9SQcqtTpuD+Sg==
+  publickey: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAJbWQidixP+AUswDAq3ptQn/3EN32cmaWktzW9hNsaJrYY5zYEsPylRGVgHQnHiHtic8oa1Qxy7VVavCNSjDjy0CAwEAAQ==
 
 mybatis:
   typeAliasesPackage: com.wen.awenboot.domain

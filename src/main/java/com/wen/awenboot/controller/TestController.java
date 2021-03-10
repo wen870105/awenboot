@@ -7,6 +7,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.wen.awenboot.biz.service.ResolverFileService;
 import com.wen.awenboot.cache.TagDetailCntCache;
 import com.wen.awenboot.config.ZhuangkuConfig;
+import com.wen.awenboot.dao.MiguTagApiDetailCntMapper;
 import com.wen.awenboot.enums.ApiDetailCntEnum;
 import com.wen.awenboot.integration.zhuangku.ProductInfo;
 import com.wen.awenboot.integration.zhuangku.Result;
@@ -22,15 +23,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Controller
@@ -59,6 +65,39 @@ public class TestController {
 
     @Autowired
     private InitIMEITask mInitIMEITask;
+
+    @Resource
+    private DataSource dataSource;
+
+    @Resource
+    private MiguTagApiDetailCntMapper infoMapper;
+
+    @GetMapping("/query")
+    @PostConstruct
+    public Object query() {
+        System.out.println("查询到的数据源连接池信息是:" + dataSource);
+        System.out.println("查询到的数据源连接池类型是:" + dataSource.getClass());
+        return JSON.toJSONString(infoMapper.selectAll());
+    }
+
+    @PostConstruct
+    public void query123() {
+        Thread thd = new Thread() {
+            @Override
+            public void run() {
+                for (; ; ) {
+                    JSON.toJSONString(infoMapper.selectAll());
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        thd.start();
+
+    }
 
     @RequestMapping("/addCache/{key}")
     @ResponseBody

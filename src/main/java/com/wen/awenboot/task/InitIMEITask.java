@@ -1,5 +1,6 @@
 package com.wen.awenboot.task;
 
+import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.util.concurrent.RateLimiter;
 import com.wen.awenboot.biz.service.ZhuangkuFileService;
@@ -12,12 +13,10 @@ import com.wen.awenboot.enums.ApiDetailCntEnum;
 import com.wen.awenboot.integration.zhuangku.ResultImei;
 import com.wen.awenboot.utils.DateUtils;
 import com.wen.awenboot.utils.ImeiUtils;
-import com.wen.awenboot.utils.RateLimiterUtils;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -73,8 +72,9 @@ public class InitIMEITask {
         }
         int loopEnd = 3;
         int sleep = 60;
+        String last3Day = DateUtils.asString(DateUtils.addDays(new Date(), -3), "yyyyMMdd");
         for (int i = 1; i <= loopEnd; i++) {
-            if (execute1(DateUtils.asString(new Date(), "yyyyMMdd"))) {
+            if (execute1(last3Day)) {
                 break;
             }
             if (i != loopEnd) {
@@ -193,10 +193,7 @@ public class InitIMEITask {
     }
 
     private void refreshLimitRateIfNeed(RateLimiter limiter) {
-        Integer minute = RateLimiterUtils.refreshLimitRateIfNeed(limiter, cfg, currentMinute);
-        if (minute != null) {
-            currentMinute = minute;
-        }
+        limiter.setRate(cfg.getRateLimiterQps() + RandomUtil.randomInt(1, 10));
     }
 
     //    0000	查询成功，返回产品推荐查询结果。
