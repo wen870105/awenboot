@@ -36,7 +36,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Controller
@@ -78,25 +77,6 @@ public class TestController {
         System.out.println("查询到的数据源连接池信息是:" + dataSource);
         System.out.println("查询到的数据源连接池类型是:" + dataSource.getClass());
         return JSON.toJSONString(infoMapper.selectAll());
-    }
-
-    @PostConstruct
-    public void query123() {
-        Thread thd = new Thread() {
-            @Override
-            public void run() {
-                for (; ; ) {
-                    JSON.toJSONString(infoMapper.selectAll());
-                    try {
-                        TimeUnit.MILLISECONDS.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        };
-        thd.start();
-
     }
 
     @RequestMapping("/addCache/{key}")

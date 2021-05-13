@@ -10,8 +10,8 @@ import com.alibaba.druid.filter.config.ConfigTools;
 public class DruidPwdConfigTools {
     
     public static void main(String[] args) throws Exception {
-        String pwd = args[0];
-//        String pwd = "123456";
+//        String pwd = args[0];
+        String pwd = "GoA21$%Pd";
         generate(pwd);
         decrypt();
     }

@@ -20,9 +20,10 @@ public class TagApiCntTask {
     @Autowired
     private TagDetailCntCache cntCache;
 
-    @Scheduled(cron = "*/5 * * * * ? ")
+    @Scheduled(cron = "*/30 * * * * ? ")
     public void task5Min() {
-        cntCache.taskUpateCacheToDb();
+        int i = cntCache.taskUpateCacheToDb();
+        log.info("更新缓存到db数量{}", i);
     }
 
 

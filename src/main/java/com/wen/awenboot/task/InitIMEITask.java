@@ -59,7 +59,6 @@ public class InitIMEITask {
 //    private String test;
 
     @Scheduled(cron = "#{zhuangkuConfig.imeiTaskSchedule}")
-//    @PostConstruct
     private void task() {
         doTask();
     }
