@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Date;
 
@@ -43,7 +42,7 @@ public class WechatServiceImpl {
     @Autowired
     private BizUserServiceImpl userService;
 
-    public Result getWechatCode(@RequestBody CodeRequest query) {
+    public Result getWechatCode(CodeRequest query) {
         Result codeRet;
         if (cfg.isMockWechatCode()) {
             Openid openid = new Openid();
@@ -105,7 +104,7 @@ public class WechatServiceImpl {
         return userInfoVo;
     }
 
-    private String getCodeRet(@RequestBody CodeRequest query) {
+    private String getCodeRet(CodeRequest query) {
         //        "errcode":40163,"errmsg":"code been used, hints: [ req_id: qJlaJTNre-RfDw4 ]"}
 //        {"session_key":"b9ew6daXEGhiO0PPnYIiMQ==","expires_in":7200,"openid":"o8SQK0V5IdyCoyetsEJp5bppxsqw"}
         StringBuilder sb = new StringBuilder();

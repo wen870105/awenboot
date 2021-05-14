@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+
+<!--    <property name="log.root" value="d:\\logs\\awenboot"/>-->
+
+    <springProperty scope="context" name="LOG_PATH" source="logback.file"/>
+
+    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%d{HH:mm:ss.SSS}] [%thread] [%-5level]%logger{30}[%line]: %msg %n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 服务日志记录 -->
+    <appender name="rollingFileAppender"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <prudent>true</prudent>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/zhuangku.log.%d{yyyyMMdd}</fileNamePattern>
+            <maxHistory>2</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>[%d{HH:mm:ss.SSS}] [%thread] [%-5level]%logger{30}[%line]: %msg %n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="retFileAppender"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <prudent>true</prudent>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/ret.log.%d{yyyyMMdd}</fileNamePattern>
+            <maxHistory>2</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>[%d{HH:mm:ss.SSS}] [%thread] [%-5level]%logger{30}[%line]: %msg %n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.wen.awenboot.task.RetLogger" additivity="false" level="INFO">
+        <appender-ref ref="retFileAppender"/>
+    </logger>
+
+
+<!--    <logger name="com.wen.awenboot.dao" level="DEBUG" />-->
+    <root level="INFO">
+        <appender-ref ref="rollingFileAppender"/>
+        <appender-ref ref="consoleAppender"/>
+    </root>
+
+</configuration>

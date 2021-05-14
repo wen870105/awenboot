@@ -1,6 +1,5 @@
 package com.wen.awenboot.utils;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.CollectionUtils;
@@ -21,7 +20,6 @@ public class RedisCli {
         return instance;
     }
 
-    @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
     public RedisCli(RedisTemplate<String, Object> redisTemplate) {
