@@ -277,7 +277,7 @@ public class InitIMEITask {
 
     private String getRequest(String imei) {
         ReqBodyDTO body = new ReqBodyDTO();
-        body.setImei(ImeiUtils.getImeiBy14(imei));
+        body.setImei(imei);
 
         ReqParamDTO param = new ReqParamDTO();
         param.setParam(body);

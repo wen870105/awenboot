@@ -18,16 +18,17 @@ public class ImeiUtils {
     public static String secretKey = "MFZxY29UNjkxQ204OVgycXh1dDE3Nll1";
 
     public static void main(String[] args) {
-        ReqHeadDTO head = new ReqHeadDTO();
-        head.setRequestRefId("SJSREQ_201601010809108632A");
-        head.setSecretId("KFZQpn74WFkmLPx3gnP");
-        head.setSignature(getSignature(head));
-        System.out.println(head.getSignature());
+//        ReqHeadDTO head = new ReqHeadDTO();
+//        head.setRequestRefId("SJSREQ_201601010809108632A");
+//        head.setSecretId("KFZQpn74WFkmLPx3gnP");
+//        head.setSignature(getSignature(head));
+//        System.out.println(head.getSignature());
 
 //        SM3Util.getSignatureBySM3("requestRefId=SJSREQ_201601010809108632A&secretId=KFZQpn74WFkmLPx3gnP",)
 //        String imei = "860192000079419";
-//        System.out.println(getImeiBy14("31847454511199"));
-//        System.out.println(getImeiBy14("86019200007"));
+        System.out.println("A0000058841582".length());
+        System.out.println(getImeiBy14("A100005A6916BB"));
+        System.out.println(getImeiBy14("A0000058841582"));
 //        System.out.println(getImeiBy14("86019200007941"));
 //        System.out.println(getImeiBy14("864230039369399999"));
 

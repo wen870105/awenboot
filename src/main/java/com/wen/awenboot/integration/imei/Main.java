@@ -15,7 +15,7 @@ public class Main {
 
 
         ReqBodyDTO body = new ReqBodyDTO();
-        body.setImei(ImeiUtils.getImeiBy14("01319300588757"));
+        body.setImei("99000762746864");
 
         ReqParamDTO param = new ReqParamDTO();
         param.setParam(body);
