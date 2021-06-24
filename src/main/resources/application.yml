@@ -46,12 +46,12 @@ zhuangku:
   #  targetUrl: http://127.0.0.1:8080/test/phone/
   readFileLimit: 100
   printFlag: 1000
-  taskName: ''
+  taskName: 'imei'
   readTimeout: 5000
   writeTimeout: 5000
   imeiSplitor: '\t'
   dayPeriodFile: migu_staff.txt
-  imeiTaskSchedule: '*/10 * * * * ?'
+  imeiTaskSchedule: '*/30 * * * * ?'
   imeiFilePrefix: 'imei-'
   rateLimiterQpsMap:
     0: 10

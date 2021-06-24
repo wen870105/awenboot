@@ -248,6 +248,7 @@ public class OkHttpUtil {
 
     }
 
+
     public void postJsonAsyn(String url, String json, final NetCall netCall) throws IOException {
         RequestBody body = RequestBody.create(JSON, json);
         //2 构造Request

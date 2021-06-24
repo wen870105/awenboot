@@ -1,5 +1,6 @@
 package com.wen.awenboot.config;
 
+import com.codahale.metrics.MetricRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -36,5 +37,10 @@ public class SpringConfig {
     @Bean
     public LinkedList<String> getExportFileList() {
         return new LinkedList<String>();
+    }
+
+    @Bean
+    public MetricRegistry metrics() {
+        return new MetricRegistry();
     }
 }

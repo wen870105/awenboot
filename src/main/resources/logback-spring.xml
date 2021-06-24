@@ -24,8 +24,23 @@
         </encoder>
     </appender>
 
-<!--    <logger name="com.wen.awenboot.dao" level="DEBUG"/>-->
-        <logger name="org.springframework.jdbc.core" level="DEBUG"/>
+    <appender name="metricsRollingFileAppender"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <prudent>true</prudent>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/metrics.log.%d{yyyyMMdd}</fileNamePattern>
+            <maxHistory>2</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>[%d{HH:mm:ss.SSS}] [%thread] [%-5level]%logger{30}[%line]: %msg %n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="metricsLogger" level="INFO">
+        <appender-ref ref="metricsRollingFileAppender"/>
+    </logger>
+    <!--    <logger name="com.wen.awenboot.dao" level="DEBUG"/>-->
+    <!--        <logger name="org.springframework.jdbc.core" level="DEBUG"/>-->
 
     <root level="INFO">
         <appender-ref ref="rollingFileAppender"/>

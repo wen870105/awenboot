@@ -1,5 +1,6 @@
 package com.wen.awenboot.controller;
 
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -9,27 +10,30 @@ import com.wen.awenboot.cache.TagDetailCntCache;
 import com.wen.awenboot.config.ZhuangkuConfig;
 import com.wen.awenboot.dao.MiguTagApiDetailCntMapper;
 import com.wen.awenboot.enums.ApiDetailCntEnum;
+import com.wen.awenboot.integration.imei.BaseResponseDTO;
+import com.wen.awenboot.integration.imei.ImeiRequestDTO;
+import com.wen.awenboot.integration.imei.ReqParamDTO;
+import com.wen.awenboot.integration.imei.ResponseBodyDTO;
+import com.wen.awenboot.integration.imei.ResponseHeadDTO;
 import com.wen.awenboot.integration.zhuangku.ProductInfo;
 import com.wen.awenboot.integration.zhuangku.Result;
-import com.wen.awenboot.integration.zhuangku.ResultImei;
 import com.wen.awenboot.integration.zhuangku.ResultMusic;
-import com.wen.awenboot.integration.zhuangku.ServNumInfo;
 import com.wen.awenboot.task.BrandLogTask;
 import com.wen.awenboot.task.GotoneTask;
 import com.wen.awenboot.task.InitIMEITask;
 import com.wen.awenboot.task.InitVideoDay;
 import com.wen.awenboot.utils.DateUtils;
+import com.wen.awenboot.utils.ImeiUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.io.File;
@@ -38,7 +42,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.stream.Collectors;
 
-@Controller
+@RestController
 @RequestMapping("/test")
 @Slf4j
 public class TestController {
@@ -71,8 +75,30 @@ public class TestController {
     @Resource
     private MiguTagApiDetailCntMapper infoMapper;
 
+    @RequestMapping(value = "/imei")
+    @ResponseBody
+    public BaseResponseDTO imei(@RequestBody ImeiRequestDTO req) {
+        log.info("ImeiRequestDTO ={}", JSON.toJSONString(req));
+        String imei = JSON.parseObject(ImeiUtils.decodeParam(req.getRequest()), ReqParamDTO.class).getParam().getImei();
+        ResponseHeadDTO head = new ResponseHeadDTO();
+        head.setRequestRefId("requestId-" + IdUtil.simpleUUID());
+        head.setResult("Y");
+        head.setResponseCode("0000");
+        head.setResponseMsg("查询成功-" + imei);
+
+        ResponseBodyDTO body = new ResponseBodyDTO();
+        body.setNumberLists("18382479394");
+        String s = JSON.toJSONString(body);
+        String response = ImeiUtils.getParam(s);
+
+        BaseResponseDTO ret = new BaseResponseDTO();
+        ret.setHead(head);
+        ret.setResponse(response);
+        log.info("ret ={}", JSON.toJSONString(ret));
+        return ret;
+    }
+
     @GetMapping("/query")
-    @PostConstruct
     public Object query() {
         System.out.println("查询到的数据源连接池信息是:" + dataSource);
         System.out.println("查询到的数据源连接池类型是:" + dataSource.getClass());
@@ -224,21 +250,6 @@ public class TestController {
     public Object mInitVideoDayTask() {
         mInitVideoDay.task();
         return "success";
-    }
-
-    @RequestMapping(value = "/imei/{imei}")
-    @ResponseBody
-    public ResultImei imei(@PathVariable("imei") String imei) {
-        //    0000	查询成功，返回产品推荐查询结果。
-        //    0001	查询成功，无产品推荐内容。
-        //    1002	查询失败，请求手机号码格式不符合要求。
-        //    1003	查询失败，系统内部故障。
-        ResultImei ret = new ResultImei();
-        ret.setResultCode("0000");
-        ServNumInfo info = new ServNumInfo();
-        info.setServ_num("183" + RandomUtil.randomNumbers(8));
-        ret.setServNumInfo(info);
-        return ret;
     }
 
     @RequestMapping(value = "/task/imei/{date}")
