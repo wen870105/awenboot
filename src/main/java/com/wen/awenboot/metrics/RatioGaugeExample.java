@@ -28,7 +28,7 @@ public class RatioGaugeExample {
     private static Meter totalMeter = registry.meter("totalCount");
     private static Meter succMeter = registry.meter("succCount");
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 //        ConsoleReporter reporter = ConsoleReporter.forRegistry(registry).build();
         reporter.start(10, TimeUnit.SECONDS);    //每5秒发送一次到控制台
 
@@ -41,11 +41,22 @@ public class RatioGaugeExample {
 
         //调用
         for (; ; ) {
+            boolean b = processHandle();
+            if (b) {
+                break;
+            }
+        }
+        TimeUnit.MILLISECONDS.sleep(10000);
+
+        reporter.report();
+        for (; ; ) {
             processHandle();
         }
+
     }
 
-    public static void processHandle() {
+
+    public static boolean processHandle() {
         //total count
         totalMeter.mark();
         try {
@@ -53,8 +64,15 @@ public class RatioGaugeExample {
             TimeUnit.MILLISECONDS.sleep(100);
             //succ count
             succMeter.mark();
+
+            if (totalMeter.getCount() == 500) {
+                System.out.println("stop===============");
+                reporter.stop();
+                return true;
+            }
         } catch (Exception e) {
 //            System.out.println("================ err");
         }
+        return false;
     }
 }

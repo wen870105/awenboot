@@ -32,7 +32,7 @@ public class CounterExample {
 
     public static void main(String[] args) throws Exception {
 
-        report.start(5, TimeUnit.SECONDS);        //每5秒将数据打印到控制台上
+        report.start(1, TimeUnit.SECONDS);        //每5秒将数据打印到控制台上
 
         new Thread(new Runnable() {
             @Override
@@ -49,6 +49,7 @@ public class CounterExample {
             @Override
             public void run() {
                 try {
+
                     consume();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -60,15 +61,18 @@ public class CounterExample {
     }
 
     public static void production(String s) throws InterruptedException {
-
-        for (int i = 0; i < 100; i++) {
-            counter.inc();
-            queue.offer(s);
-        }
+//        while (true) {
+            for (int i = 0; i < 100; i++) {
+                counter.inc();
+                queue.offer(s);
+            }
+//            TimeUnit.MILLISECONDS.sleep(1000);
+//        }
     }
 
     public static void consume() throws InterruptedException {
         while (queue.size() != 0) {
+            TimeUnit.MILLISECONDS.sleep(100);
             queue.poll();    //删除第1个元素
             counter.dec();
 

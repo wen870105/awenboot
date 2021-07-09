@@ -4,6 +4,10 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.TimeInterval;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.RatioGauge;
+import com.codahale.metrics.Slf4jReporter;
 import com.google.common.util.concurrent.RateLimiter;
 import com.wen.awenboot.biz.service.ResolverFileService;
 import com.wen.awenboot.biz.service.ZhuangkuFileService;
@@ -19,6 +23,7 @@ import com.wen.awenboot.utils.RateLimiterUtils;
 import com.wen.awenboot.utils.TagFileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -49,6 +54,15 @@ public class InitMusic {
     private static ExecutorService executor = new ThreadPoolExecutor(64, 64, 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(1024),
             ThreadPoolThreadFactoryUtil.nameThreadFactory("okhttp-pool"), new ThreadPoolExecutor.CallerRunsPolicy());
 
+    private static MetricRegistry registry = new MetricRegistry();
+
+    private static final Slf4jReporter reporter = Slf4jReporter.forRegistry(registry)
+            .outputTo(LoggerFactory.getLogger("metricsLogger"))
+            .convertRatesTo(TimeUnit.SECONDS)
+            .convertDurationsTo(TimeUnit.SECONDS)
+            .build();
+    private static Meter totalMeter = registry.meter("totalCount");
+    private static Meter succMeter = registry.meter("succCount");
 
     @Autowired
     private OkHttpUtil client;
@@ -64,6 +78,18 @@ public class InitMusic {
     // 当前时间的分钟数,用来调整流控速率
     private int currentMinute;
 
+
+    private void startReporter() {
+        log.info("启动music Reporter");
+        reporter.start(60, TimeUnit.SECONDS);
+        registry.gauge("succ-ratio", () -> new RatioGauge() {
+            @Override
+            protected Ratio getRatio() {
+                return Ratio.of(succMeter.getCount(), totalMeter.getCount());
+            }
+        });
+    }
+
     @PostConstruct
     private void init() {
         if ("music".equalsIgnoreCase(cfg.getTaskName())) {
@@ -71,6 +97,9 @@ public class InitMusic {
         } else {
             return;
         }
+
+        startReporter();
+
         Thread thd = new Thread(() -> {
             try {
                 TimeUnit.SECONDS.sleep(5);
@@ -100,7 +129,7 @@ public class InitMusic {
             files = Arrays.stream(file.listFiles()).sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
                     .filter(p -> includeDataFileList.contains(p.getName()))
                     .collect(Collectors.toList());
-        }else{
+        } else {
             files = Arrays.stream(file.listFiles()).sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
                     .collect(Collectors.toList());
         }
@@ -202,7 +231,9 @@ public class InitMusic {
             StringBuilder sb = new StringBuilder(50);
             sb.append(phone).append("=").append(result.getResponse().getParam().get(0).getProduct_info()).append("\r\n");
             zkfs.wirte(sb.toString());
+            succMeter.mark();
         }
+        totalMeter.mark();
     }
 
     private void refreshLimitRateIfNeed(RateLimiter limiter) {

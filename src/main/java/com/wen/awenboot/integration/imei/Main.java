@@ -15,7 +15,7 @@ public class Main {
 
 
         ReqBodyDTO body = new ReqBodyDTO();
-        body.setImei("99000762746864");
+        body.setImei("86297603333084");
 
         ReqParamDTO param = new ReqParamDTO();
         param.setParam(body);
@@ -37,7 +37,8 @@ public class Main {
 
         System.out.println(JSON.toJSONString(req));
 
-        System.out.println("resp=" + SM4Util.decode("b03a95e9c8856d96f18d4d47a5e3f8cc9f8b01b92693cb35d8bf75d0670cac47", ImeiUtils.secretKey));
+        System.out.println("解密前:b03a95e9c8856d96f18d4d47a5e3f8cc8fbd31a085e9da8c49a4527b73f2e1d6");
+        System.out.println("resp=" + SM4Util.decode("b03a95e9c8856d96f18d4d47a5e3f8cc8fbd31a085e9da8c49a4527b73f2e1d6", ImeiUtils.secretKey));
 
     }
 }

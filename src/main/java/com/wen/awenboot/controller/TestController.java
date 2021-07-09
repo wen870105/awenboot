@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
@@ -74,6 +75,16 @@ public class TestController {
 
     @Resource
     private MiguTagApiDetailCntMapper infoMapper;
+
+    @RequestMapping(value = "/testHeader")
+    @ResponseBody
+    public BaseResponseDTO testHeader(HttpServletRequest request) {
+        String test = request.getHeaders("testWen").nextElement();
+        System.out.println(test);
+
+
+        return null;
+    }
 
     @RequestMapping(value = "/imei")
     @ResponseBody
